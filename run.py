@@ -42,16 +42,6 @@ class App:
     def draw(self):
         pyxel.bltm(0, 0, 0, 0, 0, 40, 25)
         pyxel.blt(
-            self.player_body.position.x - self.player.size.x // 2,
-            self.player_body.position.y - self.player.size.y // 2,
-            0,
-            8,
-            0,
-            8,
-            8
-        )
-
-        pyxel.blt(
             self.player.position.x - self.player.size.x // 2,
             self.player.position.y - self.player.size.y // 2,
             0,
@@ -60,6 +50,14 @@ class App:
             8,
             8
         )
-
+        pyxel.blt(
+            self.player_body.position.x - self.player.size.x // 2,
+            self.player_body.position.y - self.player.size.y // 2,
+            0,
+            8,
+            0,
+            8,
+            8
+        )
 
 App()
