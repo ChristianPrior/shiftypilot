@@ -7,8 +7,7 @@ import os
 import pyxel
 
 from game.vector import Vec2
-from game.player import Player
-
+from game.player import Player, PlayerBody
 
 SIZE = Vec2(320, 320)
 ASSETS_PATH = f"{os.getcwd()}/assets/sprites.pyxel"
@@ -28,6 +27,7 @@ class App:
 
     def init_player(self):
         self.player = Player(SIZE // 2 + Vec2(0, 0), Vec2(0, 0))
+        self.player_body = PlayerBody(SIZE // 2 + Vec2(0, 20), Vec2(0, 0), player=self.player)
 
     def update(self):
         if pyxel.btnp(pyxel.KEY_Q):
@@ -37,14 +37,25 @@ class App:
         self.player.velocity_y(btni(pyxel.KEY_S) - btni(pyxel.KEY_W))
 
         self.player.update()
+        self.player_body.update()
 
     def draw(self):
         pyxel.bltm(0, 0, 0, 0, 0, 40, 25)
         pyxel.blt(
+            self.player_body.position.x - self.player.size.x // 2,
+            self.player_body.position.y - self.player.size.y // 2,
+            0,
+            8,
+            0,
+            8,
+            8
+        )
+
+        pyxel.blt(
             self.player.position.x - self.player.size.x // 2,
             self.player.position.y - self.player.size.y // 2,
             0,
-            8,
+            16,
             0,
             8,
             8
