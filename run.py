@@ -58,8 +58,7 @@ class App:
 
     def update_highscores(self):
         with open(HIGHSCORE_FILENAME, 'r') as highscore_file:
-            self.highscores = json.load()
-        self.highscores = json.load(highscore_file)
+            self.highscores = json.load(highscore_file)
 
     def death(self):
         if self.lives < 1:
@@ -70,7 +69,7 @@ class App:
             self.init_player()
 
     def end_game(self):
-        if len(self.highscore_name) > 3:
+        if len(self.highscore_name) > 2:
             new_highscore = {
                 'name': self.highscore_name,
                 'score': self.score
@@ -85,14 +84,6 @@ class App:
 
         else:
             pass
-        #     if pyxel.btnp(pyxel.KEY_W):
-        #
-        #     elif pyxel.btnp(pyxel.KEY_S):
-        #
-        #     elif pyxel.btnp(pyxel.KEY_ENTER):
-        #         self.highscore_name +=
-        #     else:
-        #         pass
 
     def update(self):
         if pyxel.btnp(pyxel.KEY_Q):
