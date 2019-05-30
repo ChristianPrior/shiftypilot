@@ -22,7 +22,6 @@ START_LIVES = 2
 TOTAL_DEATH_CIRCLES = 100
 
 
-
 def btni(key):
     return 1 if pyxel.btn(key) else 0
 
@@ -112,6 +111,8 @@ class App:
             self.player.velocity_x(btni(pyxel.KEY_D) - btni(pyxel.KEY_A))
             self.player.velocity_y(btni(pyxel.KEY_S) - btni(pyxel.KEY_W))
 
+            self.player_body.teleport(pyxel.btnp(pyxel.KEY_J))    # Christian said use J
+
             self.player.update()
             self.player_body.update()
             for death_circle in self.death_circles:
@@ -171,5 +172,6 @@ class App:
                         death_circle.size.x,
                         death_circle.size.y,
                     )
+
 
 App()
