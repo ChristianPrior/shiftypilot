@@ -50,6 +50,15 @@ class PlayerBody(Actor):
     def calc_distance(self):
         return self.player.position - self.position
 
+    def teleport(self, activated: bool):
+        x = self.player.position.x
+        y = self.player.position.y
+
+        if activated:
+            print(activated)
+            self.position.x = x
+            self.position.y = y
+
     def update(self):
         distance = self.calc_distance()
         self.velocity.x = 0
