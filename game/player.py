@@ -55,7 +55,6 @@ class PlayerBody(Actor):
         y = self.player.position.y
 
         if activated:
-            print(activated)
             self.position.x = x
             self.position.y = y
 

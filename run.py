@@ -20,7 +20,6 @@ HIGHSCORE_FILENAME = "highscores.json"
 START_LIVES = 1
 
 
-
 def btni(key):
     return 1 if pyxel.btn(key) else 0
 
@@ -175,5 +174,6 @@ class App:
             for x, y, is_active in self.death_circles:
                 if is_active:
                     pyxel.blt(x, y, 0, 8, 8, 5, 5)
+
 
 App()
