@@ -33,6 +33,7 @@ class PlayerBody(Actor):
 
     def __init__(self, position: Vec2, size: Vec2, player: Player):
         super().__init__(position, size)
+        self.is_dead = False
         self.velocity = Vec2(0, 0)
         self.player = player
         self.initial_distance = self.player.position - self.position
@@ -58,7 +59,18 @@ class PlayerBody(Actor):
             self.position.x = x
             self.position.y = y
 
-    def update(self):
+    def collision(self, projectiles):
+        for projectile in projectiles:
+            if (abs(self.position.x - projectile.position.x) < self.size.x
+                    and abs(self.position.y - projectile.position.y) < self.size.y):
+                return True
+
+        return False
+
+    def update(self, projectiles):
+        if self.collision(projectiles):
+            self.is_dead = True
+
         distance = self.calc_distance()
         self.velocity.x = 0
         self.velocity.y = 0

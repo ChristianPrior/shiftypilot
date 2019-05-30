@@ -26,10 +26,10 @@ class Projectile(Actor):
         self.velocity.y = direction * self.MOVEMENT_SPD_Y
 
     def update(self, player_body):
-        if (self.is_active
-                and abs(self.position.x - player_body.position.x) < player_body.size.x
-                and abs(self.position.y - player_body.position.y) < player_body.size.y):
-            self.is_active = False
+        # if (self.is_active
+        #         and abs(self.position.x - player_body.position.x) < player_body.size.x
+        #         and abs(self.position.y - player_body.position.y) < player_body.size.y):
+        #     self.is_active = False
 
         self.move_y(1)
 
@@ -37,7 +37,3 @@ class Projectile(Actor):
             self.position.x = randint(0, self.screen_size.x)
             self.move_y(-self.screen_size.y)
             self.is_active = True
-
-        # return x, y, is_active
-
-        # move self.death() to player
