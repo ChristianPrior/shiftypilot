@@ -52,8 +52,8 @@ class App:
 
     def update_death_circles(self, x, y, is_active):
         if (is_active
-                and abs(x - self.player.position.x) < self.player.size.x
-                and abs(y - self.player.position.y) < self.player.size.y):
+                and abs(x - self.player_body.position.x) < self.player_body.size.x
+                and abs(y - self.player_body.position.y) < self.player_body.size.y):
             is_active = False
             self.death()
 
