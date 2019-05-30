@@ -1,3 +1,4 @@
+from game.gmath import sign
 from game.vector import Vec2
 
 
@@ -16,9 +17,25 @@ class Actor:
 
         self.remain.x -= move
 
+        sgn = sign(move)
+
+        while move != 0:
+            self.position.x += sgn
+
+            move -= sgn
+
     def move_y(self, amount):
         self.remain.y += amount
 
         move = round(self.remain.y)
         if move == 0:
             return
+
+        self.remain.y -= move
+
+        sgn = sign(move)
+
+        while move != 0:
+            self.position.y += sgn
+
+            move -= sgn
