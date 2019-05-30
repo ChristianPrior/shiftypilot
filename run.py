@@ -10,6 +10,7 @@ import string
 import pyxel
 
 from game.player import Player, PlayerBody
+from game.projectile import Projectile
 from game.vector import Vec2
 
 
@@ -17,7 +18,8 @@ ALPHABET = string.ascii_uppercase
 SIZE = Vec2(320, 320)
 ASSETS_PATH = f"{os.getcwd()}/assets/sprites.pyxel"
 HIGHSCORE_FILENAME = "highscores.json"
-START_LIVES = 1
+START_LIVES = 2
+TOTAL_DEATH_CIRCLES = 100
 
 
 
@@ -34,7 +36,7 @@ class App:
         self.game_over = False
         self.highscores = self.init_highscores()
         self.highscores_need_update = None
-        self.death_circles = [(randint(0, SIZE.x), (i * -60), True) for i in range(100)]
+        self.death_circles = self.init_death_circles()
         self.score = 0
         self.highscore_name = 'AAA'
         self.lives = 0
@@ -47,24 +49,13 @@ class App:
             return json.load(highscore_file)
 
     def init_player(self):
-        self.player = Player(SIZE // 2 + Vec2(0, 0), Vec2(0, 0))
-        self.player_body = PlayerBody(SIZE // 2 + Vec2(0, 20), Vec2(0, 0), player=self.player)
+        self.player = Player(SIZE // 2 + Vec2(0, 0), Vec2(8, 8))
+        self.player_body = PlayerBody(SIZE // 2 + Vec2(0, 20), Vec2(8, 8), player=self.player)
 
-    def update_death_circles(self, x, y, is_active):
-        if (is_active
-                and abs(x - self.player_body.position.x) < self.player_body.size.x
-                and abs(y - self.player_body.position.y) < self.player_body.size.y):
-            is_active = False
-            self.death()
-
-        y += 1
-
-        if y > SIZE.y:
-            x = randint(0, SIZE.x)
-            y -= SIZE.y
-            is_active = True
-
-        return x, y, is_active
+    def init_death_circles(self):
+        return [
+            Projectile(Vec2(randint(0, SIZE.x), (i * -60)), Vec2(5, 5), SIZE) for i in range(TOTAL_DEATH_CIRCLES)
+        ]
 
     def update_highscores(self):
         with open(HIGHSCORE_FILENAME, 'r') as highscore_file:
@@ -123,8 +114,8 @@ class App:
 
             self.player.update()
             self.player_body.update()
-            for i, v in enumerate(self.death_circles):
-                self.death_circles[i] = self.update_death_circles(*v)
+            for death_circle in self.death_circles:
+                death_circle.update(self.player_body)
 
     def draw(self):
         if self.game_over:
@@ -156,8 +147,8 @@ class App:
                 0,
                 16,
                 0,
-                8,
-                8
+                self.player.size.x,
+                self.player.size.y,
             )
             pyxel.blt(
                 self.player_body.position.x - self.player.size.x // 2,
@@ -165,13 +156,20 @@ class App:
                 0,
                 8,
                 0,
-                8,
-                8
+                self.player_body.size.x,
+                self.player_body.size.y,
             )
 
-            # draw circle of death
-            for x, y, is_active in self.death_circles:
-                if is_active:
-                    pyxel.blt(x, y, 0, 8, 8, 5, 5)
+            for death_circle in self.death_circles:
+                if death_circle.is_active:
+                    pyxel.blt(
+                        death_circle.position.x,
+                        death_circle.position.y,
+                        0,
+                        8,
+                        8,
+                        death_circle.size.x,
+                        death_circle.size.y,
+                    )
 
 App()
