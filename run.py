@@ -3,7 +3,7 @@ from pyxel import constants
 constants.APP_SCREEN_MAX_SIZE = 320
 
 import os
-from random import randint
+from random import randint, random
 import string
 
 import pyxel
@@ -47,6 +47,10 @@ class App:
         self.score = 0
         self.lives = 0
 
+        self.cam_x = 0
+        self.cam_y = 0
+        self.cam_punch = 0
+
         self.init_player()
         pyxel.run(self.update, self.draw)
 
@@ -64,7 +68,7 @@ class App:
 
     def init_player(self):
         self.player = Player(SIZE // 2 + Vec2(0, 0), Vec2(8, 8))
-        self.player_body = PlayerBody(SIZE // 2 + Vec2(0, 20), Vec2(8, 8), player=self.player)
+        self.player_body = PlayerBody(SIZE // 2 + Vec2(0, 20), Vec2(8, 8), player=self.player, app=self)
 
     def init_small_meteors(self):
         return [
@@ -161,6 +165,15 @@ class App:
             for meteor in self.big_meteors:
                 meteor.update()
 
+            if self.cam_punch > 0:
+                self.cam_x = -self.cam_punch + random() * self.cam_punch * 2
+                self.cam_y = -self.cam_punch + random() * self.cam_punch * 2
+                self.cam_punch -= 1
+            else:
+                self.cam_punch = 0
+                self.cam_x = 0
+                self.cam_y = 0
+
     def draw(self):
         if self.intro:
             pyxel.cls(0)
@@ -193,8 +206,8 @@ class App:
 
             if not self.player_body.teleport_in_animation.is_active:
                 pyxel.blt(
-                    self.player.position.x,
-                    self.player.position.y,
+                    self.player.position.x - self.cam_x,
+                    self.player.position.y - self.cam_y,
                     0,
                     16,
                     0,
@@ -203,12 +216,12 @@ class App:
                     0
                 )
 
-            self.player_body.animate_teleport()
+            self.player_body.animate_teleport(cam_x=self.cam_x, cam_y=self.cam_y)
 
             if not self.player_body.in_animation:
                 pyxel.blt(
-                    self.player_body.position.x,
-                    self.player_body.position.y,
+                    self.player_body.position.x - self.cam_x,
+                    self.player_body.position.y - self.cam_y,
                     0,
                     8,
                     0,
@@ -220,8 +233,8 @@ class App:
             for meteor in self.small_meteors:
                 if meteor.is_active:
                     pyxel.blt(
-                        meteor.position.x,
-                        meteor.position.y,
+                        meteor.position.x - self.cam_x,
+                        meteor.position.y - self.cam_y,
                         0,
                         0,
                         16 + (8 * meteor.kind),
@@ -232,8 +245,8 @@ class App:
             for meteor in self.big_meteors:
                 if meteor.is_active:
                     pyxel.blt(
-                        meteor.position.x,
-                        meteor.position.y,
+                        meteor.position.x - self.cam_x,
+                        meteor.position.y - self.cam_y,
                         0,
                         8 + (16 * meteor.kind),
                         16,
