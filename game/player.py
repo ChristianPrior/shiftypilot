@@ -6,8 +6,8 @@ from game.animation import TeleportOut, TeleportIn
 
 class Player(Actor):
     INITIAL_MOVEMENT_SPD = 3
-    MOVEMENT_SPD_X = 1.5
-    MOVEMENT_SPD_Y = 1.5
+    MOVEMENT_SPD_X = INITIAL_MOVEMENT_SPD
+    MOVEMENT_SPD_Y = INITIAL_MOVEMENT_SPD
 
     def __init__(self, position: Vec2, size: Vec2):
         super().__init__(position, size)

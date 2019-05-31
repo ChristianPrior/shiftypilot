@@ -21,7 +21,7 @@ ASSETS_PATH = f"{os.getcwd()}/assets/sprites.pyxel"
 HIGHSCORE_FILEPATH = f"{os.getcwd()}/highscores.json"
 
 START_LIVES = 1
-TOTAL_METEORS = 100
+TOTAL_METEORS = 60
 
 
 def btni(key):

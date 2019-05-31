@@ -77,8 +77,6 @@ class TeleportIn(TeleportOut):
             self.is_active = False
             self.entity.in_animation = False
 
-        print(f'current phase {self.current_phase}')
-
         self.frame_count += 1
 
         if self.frame_count == total_frames:
@@ -94,7 +92,6 @@ class TeleportIn(TeleportOut):
             self.entity.position.y
         )
         sprite_mapping = {
-
             0: ((x + 3, y + 3, 0, 120, 0, 2, 2, 0), 1),
             1: ((x + 2, y + 2, 0, 112, 0, 4, 4, 0), 1),
             2: ((x + 1, y + 1, 0, 104, 0, 6, 6, 0), 2),
