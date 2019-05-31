@@ -29,8 +29,8 @@ class TeleportOut(Animation):
         self.is_active = True
         self.entity.in_animation = True
 
-    def animate(self):
-        sprite, total_frames = self.get_sprite()
+    def animate(self, cam_x, cam_y):
+        sprite, total_frames = self.get_sprite(cam_x, cam_y)
 
         if self.current_phase == self.end_phase and self.frame_count == total_frames:
             self.is_active = False
@@ -45,10 +45,10 @@ class TeleportOut(Animation):
 
         pyxel.blt(*sprite)
 
-    def get_sprite(self):
+    def get_sprite(self, cam_x, cam_y):
         x, y = (
-            self.entity.position.x,
-            self.entity.position.y
+            self.entity.position.x - cam_x,
+            self.entity.position.y - cam_y
         )
         sprite_mapping = {
             7: ((x + 3, y + 3, 0, 120, 0, 2, 2, 0), 1),
@@ -70,8 +70,8 @@ class TeleportIn(TeleportOut):
         super().__init__(*args, **kwargs)
         self.end_phase = 7
 
-    def animate(self):
-        sprite, total_frames = self.get_sprite()
+    def animate(self, cam_x, cam_y):
+        sprite, total_frames = self.get_sprite(cam_x, cam_y)
 
         if self.current_phase == self.end_phase and self.frame_count == total_frames:
             self.is_active = False
@@ -86,10 +86,10 @@ class TeleportIn(TeleportOut):
 
         pyxel.blt(*sprite)
 
-    def get_sprite(self):
+    def get_sprite(self, cam_x, cam_y):
         x, y = (
-            self.entity.position.x,
-            self.entity.position.y
+            self.entity.position.x - cam_x,
+            self.entity.position.y - cam_y
         )
         sprite_mapping = {
             0: ((x + 3, y + 3, 0, 120, 0, 2, 2, 0), 1),

@@ -32,7 +32,7 @@ class PlayerBody(Actor):
     MOVEMENT_SPD = 0.5
     MAX_DISTANCE = Vec2(60, 60)
 
-    def __init__(self, position: Vec2, size: Vec2, player: Player):
+    def __init__(self, position: Vec2, size: Vec2, player: Player, app):
         super().__init__(position, size)
         self.is_dead = False
         self.velocity = Vec2(0, 0)
@@ -40,6 +40,7 @@ class PlayerBody(Actor):
         self.initial_distance = self.player.position - self.position
         self.teleport_out_animation = TeleportOut()
         self.teleport_in_animation = TeleportIn()
+        self.app = app
 
     def velocity_x(self, direction: int):
         direction = sign(direction)
@@ -59,12 +60,13 @@ class PlayerBody(Actor):
         y = self.player.position.y
 
         if activated:
+            self.app.cam_punch = 10
             self.teleport_out_animation = TeleportOut(start_pos_x=x, start_pos_y=y, entity=self)
             self.teleport_out_animation.start()
 
-    def animate_teleport(self):
+    def animate_teleport(self, cam_x, cam_y):
         if self.teleport_out_animation and self.teleport_out_animation.is_active:
-            self.teleport_out_animation.animate()
+            self.teleport_out_animation.animate(cam_x, cam_y)
 
             if self.teleport_out_animation.current_phase == self.teleport_out_animation.end_phase:
                 x = self.player.position.x
@@ -76,7 +78,7 @@ class PlayerBody(Actor):
                 self.teleport_in_animation.start()
 
         if self.teleport_in_animation and self.teleport_in_animation.is_active:
-            self.teleport_in_animation.animate()
+            self.teleport_in_animation.animate(cam_x, cam_y)
 
     def collision(self, projectiles):
         for projectile in projectiles:
