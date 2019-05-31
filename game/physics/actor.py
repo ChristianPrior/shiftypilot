@@ -7,6 +7,7 @@ class Actor:
         self.position = position
         self.size = size
         self.remain = Vec2(0, 0)
+        self.in_animation = False
 
     def move_x(self, amount):
         self.remain.x += amount

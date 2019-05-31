@@ -164,15 +164,19 @@ class App:
                 self.player.size.x,
                 self.player.size.y,
             )
-            pyxel.blt(
-                self.player_body.position.x - self.player.size.x // 2,
-                self.player_body.position.y - self.player.size.y // 2,
-                0,
-                8,
-                0,
-                self.player_body.size.x,
-                self.player_body.size.y,
-            )
+
+            self.player_body.animate_teleport()
+
+            if not self.player_body.in_animation:
+                pyxel.blt(
+                    self.player_body.position.x - self.player.size.x // 2,
+                    self.player_body.position.y - self.player.size.y // 2,
+                    0,
+                    8,
+                    0,
+                    self.player_body.size.x,
+                    self.player_body.size.y,
+                )
 
             for death_circle in self.death_circles:
                 if death_circle.is_active:
