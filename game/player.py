@@ -1,3 +1,5 @@
+import pyxel
+
 from game.gmath import sign
 from game.vector import Vec2
 from game.physics.actor import Actor
@@ -59,6 +61,7 @@ class PlayerBody(Actor):
         y = self.player.position.y
 
         if activated:
+            pyxel.play(0, 2)
             self.teleport_out_animation = TeleportOut(start_pos_x=x, start_pos_y=y, entity=self)
             self.teleport_out_animation.start()
 

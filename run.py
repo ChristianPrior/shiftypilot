@@ -85,6 +85,7 @@ class App:
         ]
 
     def death(self):
+        pyxel.play(0, 3)
         if self.lives < 1:
             self.game_over = True
             if self.highscores.check_highscores(self.score):
@@ -138,6 +139,7 @@ class App:
             if pyxel.btnp(pyxel.KEY_SPACE):
                 self.intro = False
                 self.lives = START_LIVES - 1
+                pyxel.playm(0, loop=True)
         elif self.game_over:
             self.end_game()
         else:
