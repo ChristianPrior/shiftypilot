@@ -1,7 +1,9 @@
 import json
+import os
 import string
 
 ALPHABET = string.ascii_uppercase
+BASE_HIGHSCORE_FILEPATH = f"{os.getcwd()}/assets/base_highscores.json"
 DEFAULT_NAME = '___'
 
 
@@ -20,8 +22,15 @@ class Highscores():
         self.alphabet_index = -1
 
     def load_highscores(self):
-        with open(self.highscore_filepath, 'r') as highscores:
-            self.score_list = json.load(highscores)
+        try:
+            with open(self.highscore_filepath, 'r') as highscores:
+                self.score_list = json.load(highscores)
+        except FileNotFoundError:
+            with open(BASE_HIGHSCORE_FILEPATH, 'r') as base_highscores:
+                base_highscores = json.load(base_highscores)
+
+            with open(self.highscore_filepath, 'w') as highscores:
+                json.dump(base_highscores, highscores, indent=4)
 
         self.needs_updating = False
 
