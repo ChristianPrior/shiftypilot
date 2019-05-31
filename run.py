@@ -13,13 +13,12 @@ from game.player import Player, PlayerBody
 from game.projectile import Projectile
 from game.vector import Vec2
 
-
 ALPHABET = string.ascii_uppercase
 SIZE = Vec2(320, 320)
 ASSETS_PATH = f"{os.getcwd()}/assets/sprites.pyxel"
 HIGHSCORE_FILENAME = "highscores.json"
 START_LIVES = 3
-TOTAL_DEATH_CIRCLES = 100
+TOTAL_DEATH_CIRCLES = 1
 
 
 def btni(key):
@@ -28,7 +27,7 @@ def btni(key):
 
 class App:
     def __init__(self):
-        pyxel.init(SIZE.x, SIZE.y, caption="shitty pilot", fps=60)
+        pyxel.init(SIZE.x, SIZE.y, caption="Shifty Pilot 1: Galactic Apocalypse", fps=60)
         pyxel.load(ASSETS_PATH)
 
         self.intro = True
@@ -53,7 +52,11 @@ class App:
 
     def init_death_circles(self):
         return [
-            Projectile(Vec2(randint(0, SIZE.x), (i * -60)), Vec2(5, 5), SIZE) for i in range(TOTAL_DEATH_CIRCLES)
+            Projectile(
+                Vec2(randint(0, SIZE.x), -randint(0, SIZE.y)),
+                Vec2(5, 5),
+                SIZE
+            ) for _ in range(TOTAL_DEATH_CIRCLES)
         ]
 
     def update_highscores(self):
@@ -85,6 +88,20 @@ class App:
         else:
             pass
 
+    def border_checker(self):
+        # if self.player is touching top, set velocity to zero
+        position = self.player.position
+        velocity = self.player.velocity
+
+        if position.x < (0 + self.player.size.x) and velocity.x < 0:
+            velocity.x = 0
+        if position.x > (SIZE.x - self.player.size.x) and velocity.x > 0:
+            velocity.x = 0
+        if position.y < (0 + self.player.size.y) and velocity.y < 0:
+            velocity.y = 0
+        if position.y > (SIZE.y - self.player.size.y) and velocity.y > 0:
+            velocity.y = 0
+
     def update(self):
         if pyxel.btnp(pyxel.KEY_Q):
             pyxel.quit()
@@ -103,6 +120,7 @@ class App:
             self.score += 1
             self.player.velocity_x(btni(pyxel.KEY_D) - btni(pyxel.KEY_A))
             self.player.velocity_y(btni(pyxel.KEY_S) - btni(pyxel.KEY_W))
+            self.border_checker()
 
             self.player_body.teleport(pyxel.btnp(pyxel.KEY_J))    # Christian said use J
 
