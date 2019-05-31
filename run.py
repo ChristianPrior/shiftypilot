@@ -85,6 +85,7 @@ class App:
         pyxel.run(self.update, self.draw)
 
     def restart(self):
+        pyxel.stop()
         self.intro = True
         self.game_over = False
         self.highscores = Highscores(HIGHSCORE_FILEPATH)
