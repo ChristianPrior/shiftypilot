@@ -19,7 +19,6 @@ SIZE = Vec2(320, 320)
 
 ASSETS_PATH = f"{os.getcwd()}/assets/sprites.pyxel"
 HIGHSCORE_FILEPATH = f"{os.getcwd()}/highscores.json"
-
 START_LIVES = 1
 LITTLE_METEOR_COUNT = 40
 BIG_METEOR_COUNT = 5
