@@ -25,15 +25,17 @@ class Projectile(Actor):
 
         self.velocity.y = direction * self.MOVEMENT_SPD_Y
 
-    def update(self, player_body):
-        # if (self.is_active
-        #         and abs(self.position.x - player_body.position.x) < player_body.size.x
-        #         and abs(self.position.y - player_body.position.y) < player_body.size.y):
-        #     self.is_active = False
-
+    def update(self):
         self.move_y(1)
 
         if self.position.y > self.screen_size.y:
             self.position.x = randint(0, self.screen_size.x)
             self.move_y(-self.screen_size.y)
             self.is_active = True
+
+
+class Meteor(Projectile):
+
+    def __init__(self, position: Vec2, size: Vec2, screen_size: Vec2):
+        super().__init__(position, size, screen_size)
+        self.kind = randint(0, 1)
