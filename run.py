@@ -105,7 +105,8 @@ class App:
 
     def end_game(self):
         if not self.highscore_reached:
-            if btnpi(pyxel.KEY_SPACE):
+            if btnpi(pyxel.KEY_SPACE) or btnpi(pyxel.GAMEPAD_1_START):
+                self.highscores.move_to_next = True
                 self.restart()
             return
 
@@ -114,15 +115,15 @@ class App:
             self.restart()
             return
 
-        if btnpi(pyxel.KEY_W):
+        if btnpi(pyxel.KEY_W) or btnpi(pyxel.GAMEPAD_1_UP):
             pyxel.play(0, 4)
             self.highscores.alphabet_direction = 1
 
-        elif btnpi(pyxel.KEY_S):
+        elif btnpi(pyxel.KEY_S) or btnpi(pyxel.GAMEPAD_1_DOWN):
             pyxel.play(0, 4)
             self.highscores.alphabet_direction = -1
 
-        if btnpi(pyxel.KEY_SPACE):
+        if btnpi(pyxel.KEY_SPACE) or btnpi(pyxel.GAMEPAD_1_START):
             pyxel.play(0, 4)
             self.highscores.move_to_next = True
 
@@ -142,11 +143,11 @@ class App:
             velocity.y = 0
 
     def update(self):
-        if pyxel.btnp(pyxel.KEY_Q):
+        if pyxel.btnp(pyxel.KEY_Q) or pyxel.btnp(pyxel.GAMEPAD_1_SELECT):
             pyxel.quit()
 
         if self.intro:
-            if pyxel.btnp(pyxel.KEY_SPACE):
+            if pyxel.btnp(pyxel.KEY_SPACE) or pyxel.btnp(pyxel.GAMEPAD_1_START):
                 pyxel.playm(0, loop=True)
                 self.intro = False
                 self.lives = START_LIVES - 1
@@ -155,11 +156,11 @@ class App:
         else:
             projectiles = self.small_meteors + self.big_meteors
             self.score += 1
-            self.player.velocity_x(btni(pyxel.KEY_D) - btni(pyxel.KEY_A))
-            self.player.velocity_y(btni(pyxel.KEY_S) - btni(pyxel.KEY_W))
+            self.player.velocity_x((btni(pyxel.KEY_D) or btni(pyxel.GAMEPAD_1_RIGHT)) - (btni(pyxel.KEY_A) or btni(pyxel.GAMEPAD_1_LEFT)))
+            self.player.velocity_y((btni(pyxel.KEY_S) or btni(pyxel.GAMEPAD_1_DOWN)) - (btni(pyxel.KEY_W) or btni(pyxel.GAMEPAD_1_UP)))
             self.border_checker()
 
-            self.player_body.teleport(pyxel.btnp(pyxel.KEY_J))    # Christian said use J
+            self.player_body.teleport((pyxel.btnp(pyxel.KEY_J) or pyxel.btnp(pyxel.GAMEPAD_1_A)))    # Christian said use J
 
             if not self.player_body.in_animation:
                 self.player.update()
