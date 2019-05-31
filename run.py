@@ -48,6 +48,17 @@ class App:
         self.init_player()
         pyxel.run(self.update, self.draw)
 
+    def restart(self):
+        self.intro = True
+        self.game_over = False
+        self.highscores = Highscores(HIGHSCORE_FILEPATH)
+        self.highscore_reached = False
+        self.death_circles = self.init_death_circles()
+        self.score = 0
+        self.lives = 0
+
+        self.init_player()
+
     def init_player(self):
         self.player = Player(SIZE // 2 + Vec2(0, 0), Vec2(8, 8))
         self.player_body = PlayerBody(SIZE // 2 + Vec2(0, 20), Vec2(8, 8), player=self.player)
@@ -82,12 +93,12 @@ class App:
     def end_game(self):
         if not self.highscore_reached:
             if btnpi(pyxel.KEY_SPACE):
-                self.__init__()
+                self.restart()
             return
 
         if self.highscores.ready_to_save:
             self.highscores.save_new(self.highscores.highscore_name, self.score)
-            self.__init__()
+            self.restart()
             return
 
         if btnpi(pyxel.KEY_W):
@@ -178,15 +189,19 @@ class App:
                 self.player.size.x,
                 self.player.size.y,
             )
-            pyxel.blt(
-                self.player_body.position.x,
-                self.player_body.position.y,
-                0,
-                8,
-                0,
-                self.player_body.size.x,
-                self.player_body.size.y,
-            )
+
+            self.player_body.animate_teleport()
+
+            if not self.player_body.in_animation:
+                pyxel.blt(
+                    self.player_body.position.x,
+                    self.player_body.position.y,
+                    0,
+                    8,
+                    0,
+                    self.player_body.size.x,
+                    self.player_body.size.y,
+                )
 
             for death_circle in self.death_circles:
                 if death_circle.is_active:
