@@ -36,6 +36,47 @@ class TeleportOut(Animation):
             self.is_active = False
             self.entity.in_animation = False
 
+        self.frame_count += 1
+
+        if self.frame_count == total_frames:
+            if self.current_phase != self.end_phase:
+                self.current_phase += 1
+                self.frame_count = 0
+
+        pyxel.blt(*sprite)
+
+    def get_sprite(self):
+        x, y = (
+            self.entity.position.x - self.entity.player.size.x // 2,
+            self.entity.position.y - self.entity.player.size.y // 2
+        )
+        sprite_mapping = {
+            7: ((x + 3, y + 3, 0, 120, 0, 2, 2, 0), 1),
+            6: ((x + 2, y + 2, 0, 112, 0, 4, 4, 0), 1),
+            5: ((x + 1, y + 1, 0, 104, 0, 6, 6, 0), 2),
+            4: ((x - 1, y - 1, 0, 88, 0, 10, 10, 0), 2),
+            3: ((x - 3, y - 3, 0, 72, 0, 14, 14, 0), 2),
+            2: ((x - 3, y - 3, 0, 56, 0, 14, 14, 0), 3),
+            1: ((x - 3, y - 3, 0, 40, 0, 14, 14, 0), 2),
+            0: ((x - 1, y - 1, 0, 24, 0, 10, 10, 0), 1),
+        }
+
+        return sprite_mapping[self.current_phase]
+
+
+class TeleportIn(TeleportOut):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.end_phase = 7
+
+    def animate(self):
+        sprite, total_frames = self.get_sprite()
+
+        if self.current_phase == self.end_phase and self.frame_count == total_frames:
+            self.is_active = False
+            self.entity.in_animation = False
+
         print(f'current phase {self.current_phase}')
 
         self.frame_count += 1
@@ -53,14 +94,15 @@ class TeleportOut(Animation):
             self.entity.position.y - self.entity.player.size.y // 2
         )
         sprite_mapping = {
-            7: ((x, y, 0, 8, 0, 8, 8), 3),    # (sprite, no. of frames to display for)
-            6: ((x + 2, y + 2, 0, 112, 0, 2, 2), 3),
-            5: ((x + 1, y + 1, 0, 104, 0, 6, 6), 4),
-            4: ((x - 1, y - 1, 0, 88, 0, 10, 10), 4),
-            3: ((x - 3, y - 3, 0, 72, 0, 14, 14), 5),
-            2: ((x - 3, y - 3, 0, 56, 0, 14, 14), 8),
-            1: ((x - 3, y - 3, 0, 40, 0, 14, 14), 4),
-            0: ((x - 1, y - 1, 0, 24, 0, 10, 10), 3),
+
+            0: ((x + 3, y + 3, 0, 120, 0, 2, 2, 0), 1),
+            1: ((x + 2, y + 2, 0, 112, 0, 4, 4, 0), 1),
+            2: ((x + 1, y + 1, 0, 104, 0, 6, 6, 0), 2),
+            3: ((x - 1, y - 1, 0, 88, 0, 10, 10, 0), 2),
+            4: ((x - 3, y - 3, 0, 72, 0, 14, 14, 0), 2),
+            5: ((x - 3, y - 3, 0, 56, 0, 14, 14, 0), 3),
+            6: ((x - 3, y - 3, 0, 40, 0, 14, 14, 0), 2),
+            7: ((x - 1, y - 1, 0, 24, 0, 10, 10, 0), 1),
         }
 
         return sprite_mapping[self.current_phase]

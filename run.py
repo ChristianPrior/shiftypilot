@@ -137,7 +137,8 @@ class App:
 
             self.player_body.teleport(pyxel.btnp(pyxel.KEY_J))    # Christian said use J
 
-            self.player.update()
+            if not self.player_body.in_animation:
+                self.player.update()
             self.player_body.update(projectiles)
             if self.player_body.is_dead:
                 self.death()
@@ -173,15 +174,18 @@ class App:
             life_text = f"Lives: {self.lives + 1}"
             pyxel.text(5, 5, score_text, 9)
             pyxel.text(50, 5, life_text, 9)
-            pyxel.blt(
-                self.player.position.x - self.player.size.x // 2,
-                self.player.position.y - self.player.size.y // 2,
-                0,
-                16,
-                0,
-                self.player.size.x,
-                self.player.size.y,
-            )
+
+            if not self.player_body.teleport_in_animation.is_active:
+                pyxel.blt(
+                    self.player.position.x - self.player.size.x // 2,
+                    self.player.position.y - self.player.size.y // 2,
+                    0,
+                    16,
+                    0,
+                    self.player.size.x,
+                    self.player.size.y,
+                    0
+                )
 
             self.player_body.animate_teleport()
 
@@ -194,6 +198,7 @@ class App:
                     0,
                     self.player_body.size.x,
                     self.player_body.size.y,
+                    0
                 )
 
             for death_circle in self.death_circles:

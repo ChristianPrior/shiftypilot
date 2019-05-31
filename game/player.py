@@ -1,7 +1,7 @@
 from game.gmath import sign
 from game.vector import Vec2
 from game.physics.actor import Actor
-from game.animation import TeleportOut
+from game.animation import TeleportOut, TeleportIn
 
 
 class Player(Actor):
@@ -38,8 +38,8 @@ class PlayerBody(Actor):
         self.velocity = Vec2(0, 0)
         self.player = player
         self.initial_distance = self.player.position - self.position
-        self.teleport_out_animation = None
-        self.teleport_in_animation = None
+        self.teleport_out_animation = TeleportOut()
+        self.teleport_in_animation = TeleportIn()
 
     def velocity_x(self, direction: int):
         direction = sign(direction)
@@ -71,6 +71,12 @@ class PlayerBody(Actor):
                 y = self.player.position.y
                 self.position.x = x
                 self.position.y = y
+
+                self.teleport_in_animation = TeleportIn(start_pos_x=x, start_pos_y=y, entity=self)
+                self.teleport_in_animation.start()
+
+        if self.teleport_in_animation and self.teleport_in_animation.is_active:
+            self.teleport_in_animation.animate()
 
     def collision(self, projectiles):
         for projectile in projectiles:
