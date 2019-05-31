@@ -2,49 +2,50 @@ from pyxel import constants
 
 constants.APP_SCREEN_MAX_SIZE = 320
 
-import json
 import os
 from random import randint
 import string
 
 import pyxel
 
+from game.highscores import Highscores
 from game.player import Player, PlayerBody
 from game.projectile import Projectile
 from game.vector import Vec2
 
 ALPHABET = string.ascii_uppercase
+GAME_NAME = "Shifty Pilot 1: Galactic Apocalypse"
 SIZE = Vec2(320, 320)
+
 ASSETS_PATH = f"{os.getcwd()}/assets/sprites.pyxel"
-HIGHSCORE_FILENAME = "highscores.json"
-START_LIVES = 3
-TOTAL_DEATH_CIRCLES = 1
+HIGHSCORE_FILEPATH = f"{os.getcwd()}/highscores.json"
+
+START_LIVES = 1
+TOTAL_DEATH_CIRCLES = 100
 
 
 def btni(key):
     return 1 if pyxel.btn(key) else 0
 
 
+def btnpi(key):
+    return 1 if pyxel.btnp(key) else 0
+
+
 class App:
     def __init__(self):
-        pyxel.init(SIZE.x, SIZE.y, caption="Shifty Pilot 1: Galactic Apocalypse", fps=60)
+        pyxel.init(SIZE.x, SIZE.y, caption=GAME_NAME, fps=60)
         pyxel.load(ASSETS_PATH)
 
         self.intro = True
         self.game_over = False
-        self.highscores = self.init_highscores()
-        self.highscores_need_update = None
+        self.highscores = Highscores(HIGHSCORE_FILEPATH)
         self.death_circles = self.init_death_circles()
         self.score = 0
-        self.highscore_name = 'AAA'
         self.lives = 0
 
         self.init_player()
         pyxel.run(self.update, self.draw)
-
-    def init_highscores(self):
-        with open(HIGHSCORE_FILENAME, 'r') as highscore_file:
-            return json.load(highscore_file)
 
     def init_player(self):
         self.player = Player(SIZE // 2 + Vec2(0, 0), Vec2(8, 8))
@@ -59,10 +60,6 @@ class App:
             ) for _ in range(TOTAL_DEATH_CIRCLES)
         ]
 
-    def update_highscores(self):
-        with open(HIGHSCORE_FILENAME, 'r') as highscore_file:
-            self.highscores = json.load(highscore_file)
-
     def death(self):
         if self.lives < 1:
             self.game_over = True
@@ -72,24 +69,23 @@ class App:
             self.init_player()
 
     def end_game(self):
-        if len(self.highscore_name) > 2:
-            new_highscore = {
-                'name': self.highscore_name,
-                'score': self.score
-            }
-            self.score = 0
-            self.highscores.append(new_highscore)
-            self.highscores = sorted(self.highscores, key=lambda k: k['score'], reverse=True)[:10]
-            with open(HIGHSCORE_FILENAME, 'w') as highscore_file:
-                json.dump(self.highscores, highscore_file)
-            self.highscores_need_update = True
-            self.intro = True
+        if not self.highscores.ready_to_save:
+            if btnpi(pyxel.KEY_W):
+                self.highscores.alphabet_direction = 1
+
+            elif btnpi(pyxel.KEY_S):
+                self.highscores.alphabet_direction = -1
+
+            if btnpi(pyxel.KEY_SPACE):
+                self.highscores.move_to_next = True
+
+            self.highscores.update()
 
         else:
-            pass
+            self.highscores.save_new(self.highscores.highscore_name, self.score)
+            self.__init__()
 
     def border_checker(self):
-        # if self.player is touching top, set velocity to zero
         position = self.player.position
         velocity = self.player.velocity
 
@@ -107,9 +103,6 @@ class App:
             pyxel.quit()
 
         if self.intro:
-            if self.highscores_need_update:
-                self.update_highscores()
-
             if pyxel.btnp(pyxel.KEY_SPACE):
                 self.intro = False
                 self.lives = START_LIVES - 1
@@ -132,16 +125,12 @@ class App:
                 death_circle.update(self.player_body)
 
     def draw(self):
-        if self.game_over:
-            pyxel.cls(1)
-            pyxel.text(2, 15, "Enter name: {AAA}", 7)
-
-        elif self.intro:
+        if self.intro:
             pyxel.cls(12)
-            pyxel.text(2, 15, "ShiftPilot", 7)
+            pyxel.text(2, 15, GAME_NAME, 7)
             pyxel.text(2, 7, "Press space to start", 7)
             pyxel.text(SIZE.x - 60, 7, "HIGHSCORES:", 7)
-            for i, x in enumerate(self.highscores):
+            for i, x in enumerate(self.highscores.score_list):
                 pyxel.text(
                     SIZE.x - 60,
                     (7 + (i + 1) * 8),
@@ -149,10 +138,15 @@ class App:
                     7
                 )
 
+        elif self.game_over:
+            pyxel.cls(1)
+            pyxel.text(2, 15, f"Enter name: {self.highscores.highscore_name}", 7)
+            pyxel.text(2, 50, "USE 'W' 'S' and 'SPACE' keys", 7)
+
         else:
             pyxel.cls(0)
             score_text = f"Score: {self.score}"
-            life_text = f"Lives: {self.lives}"
+            life_text = f"Lives: {self.lives + 1}"
             pyxel.text(0, 0, score_text, 9)
             pyxel.text(60, 0, life_text, 9)
             pyxel.blt(
