@@ -21,7 +21,8 @@ ASSETS_PATH = f"{os.getcwd()}/assets/sprites.pyxel"
 HIGHSCORE_FILEPATH = f"{os.getcwd()}/highscores.json"
 
 START_LIVES = 1
-TOTAL_METEORS = 100
+LITTLE_METEOR_COUNT = 40
+BIG_METEOR_COUNT = 5
 
 
 def btni(key):
@@ -41,7 +42,8 @@ class App:
         self.game_over = False
         self.highscores = Highscores(HIGHSCORE_FILEPATH)
         self.highscore_reached = False
-        self.meteors = self.init_meteors()
+        self.small_meteors = self.init_small_meteors()
+        self.big_meteors = self.init_big_meteors()
         self.score = 0
         self.lives = 0
 
@@ -53,7 +55,8 @@ class App:
         self.game_over = False
         self.highscores = Highscores(HIGHSCORE_FILEPATH)
         self.highscore_reached = False
-        self.meteors = self.init_meteors()
+        self.small_meteors = self.init_small_meteors()
+        self.big_meteors = self.init_big_meteors()
         self.score = 0
         self.lives = 0
 
@@ -63,13 +66,22 @@ class App:
         self.player = Player(SIZE // 2 + Vec2(0, 0), Vec2(8, 8))
         self.player_body = PlayerBody(SIZE // 2 + Vec2(0, 20), Vec2(8, 8), player=self.player)
 
-    def init_meteors(self):
+    def init_small_meteors(self):
         return [
             Meteor(
                 Vec2(randint(0, SIZE.x), -randint(0, SIZE.y)),
                 Vec2(8, 8),
                 SIZE
-            ) for _ in range(TOTAL_METEORS)
+            ) for _ in range(LITTLE_METEOR_COUNT)
+        ]
+
+    def init_big_meteors(self):
+        return [
+            Meteor(
+                Vec2(randint(0, SIZE.x), -randint(0, SIZE.y)),
+                Vec2(16, 16),
+                SIZE
+            ) for _ in range(BIG_METEOR_COUNT)
         ]
 
     def death(self):
@@ -80,7 +92,7 @@ class App:
 
         else:
             self.lives -= 1
-            self.meteors = self.init_meteors()
+            self.small_meteors = self.init_small_meteors()
             self.init_player()
 
     def end_game(self):
@@ -129,7 +141,7 @@ class App:
         elif self.game_over:
             self.end_game()
         else:
-            projectiles = self.meteors
+            projectiles = self.small_meteors + self.big_meteors
             self.score += 1
             self.player.velocity_x(btni(pyxel.KEY_D) - btni(pyxel.KEY_A))
             self.player.velocity_y(btni(pyxel.KEY_S) - btni(pyxel.KEY_W))
@@ -142,8 +154,10 @@ class App:
             self.player_body.update(projectiles)
             if self.player_body.is_dead:
                 self.death()
-            for death_circle in self.meteors:
-                death_circle.update()
+            for meteor in self.small_meteors:
+                meteor.update()
+            for meteor in self.big_meteors:
+                meteor.update()
 
     def draw(self):
         if self.intro:
@@ -201,7 +215,7 @@ class App:
                     0
                 )
 
-            for meteor in self.meteors:
+            for meteor in self.small_meteors:
                 if meteor.is_active:
                     pyxel.blt(
                         meteor.position.x,
@@ -209,6 +223,18 @@ class App:
                         0,
                         0,
                         16 + (8 * meteor.kind),
+                        meteor.size.x,
+                        meteor.size.y,
+                    )
+
+            for meteor in self.big_meteors:
+                if meteor.is_active:
+                    pyxel.blt(
+                        meteor.position.x,
+                        meteor.position.y,
+                        0,
+                        8 + (16 * meteor.kind),
+                        16,
                         meteor.size.x,
                         meteor.size.y,
                     )
