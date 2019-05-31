@@ -126,29 +126,29 @@ class App:
 
     def draw(self):
         if self.intro:
-            pyxel.cls(12)
-            pyxel.text(2, 15, GAME_NAME, 7)
-            pyxel.text(2, 7, "Press space to start", 7)
-            pyxel.text(SIZE.x - 60, 7, "HIGHSCORES:", 7)
+            pyxel.cls(0)
+            pyxel.text(90, 40, GAME_NAME, pyxel.frame_count % 16)
+            pyxel.text(120, 50, "Press SPACE to start", 9)
+            pyxel.text(120, 80, "HIGHSCORES:", 7)
             for i, x in enumerate(self.highscores.score_list):
                 pyxel.text(
-                    SIZE.x - 60,
-                    (7 + (i + 1) * 8),
+                    120,
+                    (80 + (i + 1) * 10),
                     f"{x['name']}: {x['score']}",
                     7
                 )
 
         elif self.game_over:
-            pyxel.cls(1)
-            pyxel.text(2, 15, f"Enter name: {self.highscores.highscore_name}", 7)
-            pyxel.text(2, 50, "USE 'W' 'S' and 'SPACE' keys", 7)
+            pyxel.cls(0)
+            pyxel.text(100, 60, f"Enter name: {self.highscores.highscore_name}", 9)
+            pyxel.text(100, 70, "USE 'W' 'S' and 'SPACE' keys", 9)
 
         else:
             pyxel.cls(0)
             score_text = f"Score: {self.score}"
             life_text = f"Lives: {self.lives + 1}"
-            pyxel.text(0, 0, score_text, 9)
-            pyxel.text(60, 0, life_text, 9)
+            pyxel.text(5, 5, score_text, 9)
+            pyxel.text(50, 5, life_text, 9)
             pyxel.blt(
                 self.player.position.x - self.player.size.x // 2,
                 self.player.position.y - self.player.size.y // 2,
