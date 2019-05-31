@@ -5,7 +5,7 @@ from game.animation import TeleportOut, TeleportIn
 
 
 class Player(Actor):
-    INITIAL_MOVEMENT_SPD = 1.5
+    INITIAL_MOVEMENT_SPD = 3
     MOVEMENT_SPD_X = 1.5
     MOVEMENT_SPD_Y = 1.5
 
@@ -30,7 +30,7 @@ class Player(Actor):
 
 class PlayerBody(Actor):
     MOVEMENT_SPD = 0.5
-    MAX_DISTANCE = Vec2(40, 40)
+    MAX_DISTANCE = Vec2(60, 60)
 
     def __init__(self, position: Vec2, size: Vec2, player: Player):
         super().__init__(position, size)
