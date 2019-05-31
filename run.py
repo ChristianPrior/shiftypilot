@@ -3,6 +3,7 @@ from pyxel import constants
 constants.APP_SCREEN_MAX_SIZE = 320
 
 import os
+import math
 from random import randint, random
 import string
 
@@ -32,10 +33,40 @@ def btnpi(key):
     return 1 if pyxel.btnp(key) else 0
 
 
+class Particle:
+    ramp = [7, 13, 12, 12, 13, 2, 1, 2]
+
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+        ang = random() * math.tau
+        self.vx = math.cos(ang) * 0.1
+        self.vy = math.sin(ang) * 0.1
+
+        self.life = randint(45, 75)
+        self.age = 0
+
+        self.active = True
+
+    def update(self):
+        self.x += self.vx
+        self.y += self.vy
+        if self.age < self.life:
+            self.age += 1
+
+    def draw(self):
+        fract = self.age / self.life
+        col = self.ramp[int(fract * (len(self.ramp) - 1))]
+        pyxel.circ(self.x, self.y, 1, col)
+
+
 class App:
     def __init__(self):
         pyxel.init(SIZE.x, SIZE.y, caption=GAME_NAME, fps=60)
         pyxel.load(ASSETS_PATH)
+
+        self.particles = []
 
         self.intro = True
         self.game_over = False
@@ -142,6 +173,15 @@ class App:
         if position.y > (SIZE.y - self.player.size.y) and velocity.y > 0:
             velocity.y = 0
 
+    def add_particle(self, x, y):
+        particle = Particle(x, y)
+        for i, p in enumerate(self.particles):
+            if p.active is False:
+                self.particles[i] = particle
+                break
+        else:
+            self.particles.append(particle)
+
     def update(self):
         if pyxel.btnp(pyxel.KEY_Q) or pyxel.btnp(pyxel.GAMEPAD_1_SELECT):
             pyxel.quit()
@@ -181,6 +221,12 @@ class App:
                 self.cam_x = 0
                 self.cam_y = 0
 
+            for particle in self.particles:
+                if particle.active:
+                    if particle.age >= particle.life:
+                        particle.active = False
+                    particle.update()
+
     def draw(self):
         if self.intro:
             pyxel.cls(0)
@@ -210,6 +256,10 @@ class App:
             life_text = f"Lives: {self.lives + 1}"
             pyxel.text(5, 5, score_text, 9)
             pyxel.text(50, 5, life_text, 9)
+
+            for particle in self.particles:
+                if particle.active:
+                    particle.draw()
 
             if not self.player_body.teleport_in_animation.is_active:
                 pyxel.blt(
