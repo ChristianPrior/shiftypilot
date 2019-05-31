@@ -25,12 +25,7 @@ class Projectile(Actor):
 
         self.velocity.y = direction * self.MOVEMENT_SPD_Y
 
-    def update(self, player_body):
-        # if (self.is_active
-        #         and abs(self.position.x - player_body.position.x) < player_body.size.x
-        #         and abs(self.position.y - player_body.position.y) < player_body.size.y):
-        #     self.is_active = False
-
+    def update(self):
         self.move_y(1)
 
         if self.position.y > self.screen_size.y:

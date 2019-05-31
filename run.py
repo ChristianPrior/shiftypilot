@@ -53,9 +53,16 @@ class App:
         self.player_body = PlayerBody(SIZE // 2 + Vec2(0, 20), Vec2(8, 8), player=self.player)
 
     def init_death_circles(self):
+        # return [
+        #     Projectile(
+        #         Vec2(randint(0, SIZE.x), -randint(0, SIZE.y)),
+        #         Vec2(5, 5),
+        #         SIZE
+        #     ) for _ in range(TOTAL_DEATH_CIRCLES)
+        # ]
         return [
             Projectile(
-                Vec2(randint(0, SIZE.x), -randint(0, SIZE.y)),
+                Vec2(120, -randint(0, SIZE.y)),
                 Vec2(5, 5),
                 SIZE
             ) for _ in range(TOTAL_DEATH_CIRCLES)
@@ -131,7 +138,7 @@ class App:
             if self.player_body.is_dead:
                 self.death()
             for death_circle in self.death_circles:
-                death_circle.update(self.player_body)
+                death_circle.update()
 
     def draw(self):
         if self.intro:
@@ -163,8 +170,8 @@ class App:
             pyxel.text(5, 5, score_text, 9)
             pyxel.text(50, 5, life_text, 9)
             pyxel.blt(
-                self.player.position.x - self.player.size.x // 2,
-                self.player.position.y - self.player.size.y // 2,
+                self.player.position.x,
+                self.player.position.y,
                 0,
                 16,
                 0,
@@ -172,8 +179,8 @@ class App:
                 self.player.size.y,
             )
             pyxel.blt(
-                self.player_body.position.x - self.player.size.x // 2,
-                self.player_body.position.y - self.player.size.y // 2,
+                self.player_body.position.x,
+                self.player_body.position.y,
                 0,
                 8,
                 0,
