@@ -10,7 +10,7 @@ import pyxel
 
 from game.highscores import Highscores
 from game.player import Player, PlayerBody
-from game.projectile import Projectile
+from game.projectile import Meteor
 from game.vector import Vec2
 
 ALPHABET = string.ascii_uppercase
@@ -21,7 +21,7 @@ ASSETS_PATH = f"{os.getcwd()}/assets/sprites.pyxel"
 HIGHSCORE_FILEPATH = f"{os.getcwd()}/highscores.json"
 
 START_LIVES = 1
-TOTAL_DEATH_CIRCLES = 100
+TOTAL_METEORS = 100
 
 
 def btni(key):
@@ -41,7 +41,7 @@ class App:
         self.game_over = False
         self.highscores = Highscores(HIGHSCORE_FILEPATH)
         self.highscore_reached = False
-        self.death_circles = self.init_death_circles()
+        self.meteors = self.init_meteors()
         self.score = 0
         self.lives = 0
 
@@ -53,7 +53,7 @@ class App:
         self.game_over = False
         self.highscores = Highscores(HIGHSCORE_FILEPATH)
         self.highscore_reached = False
-        self.death_circles = self.init_death_circles()
+        self.meteors = self.init_meteors()
         self.score = 0
         self.lives = 0
 
@@ -63,20 +63,13 @@ class App:
         self.player = Player(SIZE // 2 + Vec2(0, 0), Vec2(8, 8))
         self.player_body = PlayerBody(SIZE // 2 + Vec2(0, 20), Vec2(8, 8), player=self.player)
 
-    def init_death_circles(self):
-        # return [
-        #     Projectile(
-        #         Vec2(randint(0, SIZE.x), -randint(0, SIZE.y)),
-        #         Vec2(5, 5),
-        #         SIZE
-        #     ) for _ in range(TOTAL_DEATH_CIRCLES)
-        # ]
+    def init_meteors(self):
         return [
-            Projectile(
-                Vec2(120, -randint(0, SIZE.y)),
-                Vec2(5, 5),
+            Meteor(
+                Vec2(randint(0, SIZE.x), -randint(0, SIZE.y)),
+                Vec2(8, 8),
                 SIZE
-            ) for _ in range(TOTAL_DEATH_CIRCLES)
+            ) for _ in range(TOTAL_METEORS)
         ]
 
     def death(self):
@@ -87,7 +80,7 @@ class App:
 
         else:
             self.lives -= 1
-            self.death_circles = self.init_death_circles()
+            self.meteors = self.init_meteors()
             self.init_player()
 
     def end_game(self):
@@ -136,7 +129,7 @@ class App:
         elif self.game_over:
             self.end_game()
         else:
-            projectiles = self.death_circles
+            projectiles = self.meteors
             self.score += 1
             self.player.velocity_x(btni(pyxel.KEY_D) - btni(pyxel.KEY_A))
             self.player.velocity_y(btni(pyxel.KEY_S) - btni(pyxel.KEY_W))
@@ -148,7 +141,7 @@ class App:
             self.player_body.update(projectiles)
             if self.player_body.is_dead:
                 self.death()
-            for death_circle in self.death_circles:
+            for death_circle in self.meteors:
                 death_circle.update()
 
     def draw(self):
@@ -203,16 +196,16 @@ class App:
                     self.player_body.size.y,
                 )
 
-            for death_circle in self.death_circles:
-                if death_circle.is_active:
+            for meteor in self.meteors:
+                if meteor.is_active:
                     pyxel.blt(
-                        death_circle.position.x,
-                        death_circle.position.y,
+                        meteor.position.x,
+                        meteor.position.y,
                         0,
-                        8,
-                        8,
-                        death_circle.size.x,
-                        death_circle.size.y,
+                        0,
+                        16 + (8 * meteor.kind),
+                        meteor.size.x,
+                        meteor.size.y,
                     )
 
 

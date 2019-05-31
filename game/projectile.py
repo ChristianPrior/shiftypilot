@@ -32,3 +32,10 @@ class Projectile(Actor):
             self.position.x = randint(0, self.screen_size.x)
             self.move_y(-self.screen_size.y)
             self.is_active = True
+
+
+class Meteor(Projectile):
+
+    def __init__(self, position: Vec2, size: Vec2, screen_size: Vec2):
+        super().__init__(position, size, screen_size)
+        self.kind = randint(0, 1)
