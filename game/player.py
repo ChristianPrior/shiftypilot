@@ -72,10 +72,19 @@ class PlayerBody(Actor):
             self.teleport_out_animation.animate(cam_x, cam_y)
 
             if self.teleport_out_animation.current_phase == self.teleport_out_animation.end_phase:
+                start_x = self.position.x
+                start_y = self.position.y
+                dx = self.player.position.x - self.position.x
+                dy = self.player.position.y - self.position.y
+
                 x = self.player.position.x
                 y = self.player.position.y
                 self.position.x = x
                 self.position.y = y
+
+                for t in range(0, 10):
+                    t /= 10
+                    self.app.add_particle(start_x + dx * t, start_y + dy * t)
 
                 self.teleport_in_animation = TeleportIn(start_pos_x=x, start_pos_y=y, entity=self)
                 self.teleport_in_animation.start()
