@@ -14,7 +14,7 @@ from game.projectile import Meteor
 from game.vector import Vec2
 
 ALPHABET = string.ascii_uppercase
-GAME_NAME = "Shifty Pilot 1: Galactic Apocalypse"
+GAME_NAME = "Shitty Pilot 1: Galactic Apocalypse"
 SIZE = Vec2(320, 320)
 
 ASSETS_PATH = f"{os.getcwd()}/assets/sprites.pyxel"
@@ -90,9 +90,13 @@ class App:
     def death(self):
         pyxel.play(0, 3)
         if self.lives < 1:
+            pyxel.stop()
             self.game_over = True
             if self.highscores.check_highscores(self.score):
+                pyxel.play(0, 6)
                 self.highscore_reached = True
+            else:
+                pyxel.play(0, 5)
 
         else:
             self.lives -= 1
@@ -111,12 +115,15 @@ class App:
             return
 
         if btnpi(pyxel.KEY_W):
+            pyxel.play(0, 4)
             self.highscores.alphabet_direction = 1
 
         elif btnpi(pyxel.KEY_S):
+            pyxel.play(0, 4)
             self.highscores.alphabet_direction = -1
 
         if btnpi(pyxel.KEY_SPACE):
+            pyxel.play(0, 4)
             self.highscores.move_to_next = True
 
         self.highscores.update()
@@ -140,9 +147,9 @@ class App:
 
         if self.intro:
             if pyxel.btnp(pyxel.KEY_SPACE):
+                pyxel.playm(0, loop=True)
                 self.intro = False
                 self.lives = START_LIVES - 1
-                pyxel.playm(0, loop=True)
         elif self.game_over:
             self.end_game()
         else:
