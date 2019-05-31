@@ -31,9 +31,19 @@ class Highscores():
             'score': score
         }
         self.score_list.append(new_highscore)
-        self.score_list = sorted(self.score_list, key=lambda k: k['score'], reverse=True)[:10]
+        self.score_list = self.ordered_score_list()
         with open(self.highscore_filepath, 'w') as highscore_file:
             json.dump(self.score_list, highscore_file, indent=4)
+
+    def check_highscores(self, score):
+        current_highscores = [x['score'] for x in self.score_list]
+        if all([score < highscore for highscore in current_highscores]):
+            return False
+
+        return True
+
+    def ordered_score_list(self):
+        return sorted(self.score_list, key=lambda k: k['score'], reverse=True)[:10]
 
     def update(self):
         if self.active_letter > 2:

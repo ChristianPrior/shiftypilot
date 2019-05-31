@@ -40,6 +40,7 @@ class App:
         self.intro = True
         self.game_over = False
         self.highscores = Highscores(HIGHSCORE_FILEPATH)
+        self.highscore_reached = False
         self.death_circles = self.init_death_circles()
         self.score = 0
         self.lives = 0
@@ -63,27 +64,35 @@ class App:
     def death(self):
         if self.lives < 1:
             self.game_over = True
+            if self.highscores.check_highscores(self.score):
+                self.highscore_reached = True
+
         else:
             self.lives -= 1
             self.death_circles = self.init_death_circles()
             self.init_player()
 
     def end_game(self):
-        if not self.highscores.ready_to_save:
-            if btnpi(pyxel.KEY_W):
-                self.highscores.alphabet_direction = 1
-
-            elif btnpi(pyxel.KEY_S):
-                self.highscores.alphabet_direction = -1
-
+        if not self.highscore_reached:
             if btnpi(pyxel.KEY_SPACE):
-                self.highscores.move_to_next = True
+                self.__init__()
+            return
 
-            self.highscores.update()
-
-        else:
+        if self.highscores.ready_to_save:
             self.highscores.save_new(self.highscores.highscore_name, self.score)
             self.__init__()
+            return
+
+        if btnpi(pyxel.KEY_W):
+            self.highscores.alphabet_direction = 1
+
+        elif btnpi(pyxel.KEY_S):
+            self.highscores.alphabet_direction = -1
+
+        if btnpi(pyxel.KEY_SPACE):
+            self.highscores.move_to_next = True
+
+        self.highscores.update()
 
     def border_checker(self):
         position = self.player.position
@@ -127,12 +136,12 @@ class App:
     def draw(self):
         if self.intro:
             pyxel.cls(0)
-            pyxel.text(90, 40, GAME_NAME, pyxel.frame_count % 16)
-            pyxel.text(120, 50, "Press SPACE to start", 9)
-            pyxel.text(120, 80, "HIGHSCORES:", 7)
-            for i, x in enumerate(self.highscores.score_list):
+            pyxel.text(85, 40, GAME_NAME, pyxel.frame_count % 16)
+            pyxel.text(115, 50, "Press SPACE to start", 9)
+            pyxel.text(135, 80, "HIGHSCORES:", 7)
+            for i, x in enumerate(self.highscores.ordered_score_list()):
                 pyxel.text(
-                    120,
+                    135,
                     (80 + (i + 1) * 10),
                     f"{x['name']}: {x['score']}",
                     7
@@ -140,8 +149,12 @@ class App:
 
         elif self.game_over:
             pyxel.cls(0)
-            pyxel.text(100, 60, f"Enter name: {self.highscores.highscore_name}", 9)
-            pyxel.text(100, 70, "USE 'W' 'S' and 'SPACE' keys", 9)
+            pyxel.text(135, 60, "GAME OVER", 9)
+            if self.highscore_reached:
+                pyxel.text(100, 80, f"Enter name: {self.highscores.highscore_name}", 9)
+                pyxel.text(100, 90, "USE 'W' 'S' and 'SPACE' keys", 9)
+            else:
+                pyxel.text(110, 80, "Push space to restart", 9)
 
         else:
             pyxel.cls(0)

@@ -1,33 +1,33 @@
 [
   {
-    "name": "CAT",
+    "name": "AAA",
     "score": 10000
   }, {
-    "name": "DOG",
+    "name": "AAA",
     "score": 9000
   },  {
-    "name": "BAN",
+    "name": "AAA",
     "score": 8000
   },  {
-    "name": "MAN",
+    "name": "AAA",
     "score": 7000
   },  {
-    "name": "BIN",
+    "name": "AAA",
     "score": 6000
   },  {
-    "name": "FUN",
+    "name": "AAA",
     "score": 5000
   },  {
-    "name": "SUN",
+    "name": "AAA",
     "score": 4000
   },  {
-    "name": "TIN",
+    "name": "AAA",
     "score": 3000
   },  {
-    "name": "TAN",
+    "name": "AAA",
     "score": 2000
   },  {
-    "name": "FAN",
+    "name": "AAA",
     "score": 1000
   }
 ]
