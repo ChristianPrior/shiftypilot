@@ -298,6 +298,7 @@ class App:
                         16 + (8 * meteor.kind),
                         meteor.size.x,
                         meteor.size.y,
+                        0
                     )
 
             for meteor in self.big_meteors:
@@ -310,6 +311,7 @@ class App:
                         16,
                         meteor.size.x,
                         meteor.size.y,
+                        0
                     )
 
 
