@@ -47,8 +47,8 @@ class TeleportOut(Animation):
 
     def get_sprite(self, cam_x, cam_y):
         x, y = (
-            self.entity.position.x - cam_x,
-            self.entity.position.y - cam_y
+            self.entity.position.x - self.entity.size.x // 2 - cam_x,
+            self.entity.position.y - self.entity.size.y // 2 - cam_y
         )
         sprite_mapping = {
             7: ((x + 3, y + 3, 0, 120, 0, 2, 2, 0), 1),
@@ -88,8 +88,8 @@ class TeleportIn(TeleportOut):
 
     def get_sprite(self, cam_x, cam_y):
         x, y = (
-            self.entity.position.x - cam_x,
-            self.entity.position.y - cam_y
+            self.entity.position.x - self.entity.size.x // 2 - cam_x,
+            self.entity.position.y - self.entity.size.y // 2- cam_y
         )
         sprite_mapping = {
             0: ((x + 3, y + 3, 0, 120, 0, 2, 2, 0), 1),

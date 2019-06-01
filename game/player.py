@@ -94,18 +94,9 @@ class PlayerBody(Actor):
 
     def collision(self, projectiles):
         for projectile in projectiles:
-            x_gap = self.size.x
-            if self.position.x - projectile.position.x > 0:
-                x_gap = projectile.size.x
-
-            x_gap += 1
-
-            y_gap = self.size.y
-            if self.position.y - projectile.position.y > 0:
-                y_gap = projectile.size.y
-
-            if (abs(self.position.x - projectile.position.x) < x_gap
-                    and abs(self.position.y - projectile.position.y) < y_gap):
+            gap = self.position - projectile.position
+            if (abs(gap.x) < self.size.x // 2 + projectile.size.x // 2
+                    and abs(gap.y) < self.size.y // 2 + projectile.size.y // 2):
                 return True
 
         return False
