@@ -4,7 +4,7 @@ constants.APP_SCREEN_MAX_SIZE = 320
 
 import os
 import math
-from random import randint, random
+from random import randint, random, choice, randrange
 import string
 
 import pyxel
@@ -31,6 +31,33 @@ def btni(key):
 
 def btnpi(key):
     return 1 if pyxel.btnp(key) else 0
+
+
+class Background:
+    star_colours = [5, 6]
+    star_sep_distance = 13
+    scroll_speed = 0.1
+
+    def __init__(self, tilemap=0):
+        self.tilemap = tilemap
+        self.stars = []
+
+        self.init_stars()
+
+    def init_stars(self):
+        for y in range(0, SIZE.y, randint(6, self.star_sep_distance)):
+            for x in range(0, SIZE.x, randint(6, self.star_sep_distance)):
+                star = [x + randint(0, 32), y + randint(0, 32), choice(self.star_colours)]
+
+                self.stars.append(star)
+
+    def draw(self):
+        for star in self.stars:
+            pyxel.pix(star[0], star[1], star[2])
+            star[1] += self.scroll_speed
+            if star[1] > SIZE.y + self.star_sep_distance:
+                star[1] = 0
+                star[0] = randrange(0, SIZE.x, 1)
 
 
 class Particle:
@@ -82,6 +109,8 @@ class App:
         self.cam_punch = 0
 
         self.init_player()
+        self.bg = Background()
+
         pyxel.run(self.update, self.draw)
 
     def restart(self):
@@ -197,11 +226,17 @@ class App:
         else:
             projectiles = self.small_meteors + self.big_meteors
             self.score += 1
-            self.player.velocity_x((btni(pyxel.KEY_D) or btni(pyxel.GAMEPAD_1_RIGHT)) - (btni(pyxel.KEY_A) or btni(pyxel.GAMEPAD_1_LEFT)))
-            self.player.velocity_y((btni(pyxel.KEY_S) or btni(pyxel.GAMEPAD_1_DOWN)) - (btni(pyxel.KEY_W) or btni(pyxel.GAMEPAD_1_UP)))
+            self.player.velocity_x(
+                (btni(pyxel.KEY_D) or btni(pyxel.GAMEPAD_1_RIGHT)) - (btni(pyxel.KEY_A) or btni(pyxel.GAMEPAD_1_LEFT))
+            )
+            self.player.velocity_y(
+                (btni(pyxel.KEY_S) or btni(pyxel.GAMEPAD_1_DOWN)) - (btni(pyxel.KEY_W) or btni(pyxel.GAMEPAD_1_UP))
+            )
             self.border_checker()
 
-            self.player_body.teleport((pyxel.btnp(pyxel.KEY_J) or pyxel.btnp(pyxel.GAMEPAD_1_A)))    # Christian said use J
+            self.player_body.teleport(
+                (pyxel.btnp(pyxel.KEY_J) or pyxel.btnp(pyxel.GAMEPAD_1_A))    # Christian said use J
+            )
 
             if not self.player_body.in_animation:
                 self.player.update()
@@ -253,6 +288,8 @@ class App:
 
         else:
             pyxel.cls(0)
+            self.bg.draw()
+
             score_text = f"Score: {self.score}"
             life_text = f"Lives: {self.lives + 1}"
             pyxel.text(5, 5, score_text, 9)
