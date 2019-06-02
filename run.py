@@ -45,9 +45,13 @@ class Background:
         self.init_stars()
 
     def init_stars(self):
-        for y in range(0, SIZE.y, randint(6, self.star_sep_distance)):
-            for x in range(0, SIZE.x, randint(6, self.star_sep_distance)):
-                star = [x + randint(0, 32), y + randint(0, 32), choice(self.star_colours)]
+        for y in range(SIZE.y // self.star_sep_distance):
+            for x in range(SIZE.x // self.star_sep_distance):
+                star = [
+                    (x * self.star_sep_distance + randint(0, 32)) % SIZE.x,
+                    (y * self.star_sep_distance + randint(0, 32)) % SIZE.y,
+                    choice(self.star_colours)
+                ]
 
                 self.stars.append(star)
 
@@ -55,7 +59,7 @@ class Background:
         for star in self.stars:
             pyxel.pix(star[0], star[1], star[2])
             star[1] += self.scroll_speed
-            if star[1] > SIZE.y + self.star_sep_distance:
+            if star[1] > SIZE.y:
                 star[1] = 0
                 star[0] = randrange(0, SIZE.x, 1)
 
