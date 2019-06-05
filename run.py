@@ -21,7 +21,7 @@ SIZE = Vec2(320, 320)
 ASSETS_PATH = f"{os.getcwd()}/assets/sprites.pyxel"
 HIGHSCORE_FILEPATH = f"{os.getcwd()}/highscores.json"
 START_LIVES = 1
-LITTLE_METEOR_COUNT = 40
+LITTLE_METEOR_COUNT = 10
 BIG_METEOR_COUNT = 5
 
 
@@ -31,6 +31,36 @@ def btni(key):
 
 def btnpi(key):
     return 1 if pyxel.btnp(key) else 0
+
+
+class Difficulty:
+    multiplier: float
+    # level: int
+
+    def __init__(self, app, multiplier):
+        self.app = app
+        self.multiplier = multiplier
+
+    def increase_difficulty(self):
+        if self.app.score >= 1000 and self.app.score % 250 == 0:
+            print(f'small meteor count: {len(self.app.small_meteors)}')
+            self.app.small_meteors = self.app.small_meteors + [
+                Meteor(
+                    Vec2(randint(0, SIZE.x), -randint(0, SIZE.y)),
+                    Vec2(8, 8),
+                    SIZE
+                ) for _ in range(int(self.multiplier * LITTLE_METEOR_COUNT - LITTLE_METEOR_COUNT))
+            ]
+
+            print(f'big meteor count: {len(self.app.big_meteors)}')
+
+            self.app.big_meteors = self.app.big_meteors + [
+                Meteor(
+                    Vec2(randint(0, SIZE.x), -randint(0, SIZE.y)),
+                    Vec2(16, 16),
+                    SIZE
+                ) for _ in range(int(self.multiplier * BIG_METEOR_COUNT - BIG_METEOR_COUNT))
+            ]
 
 
 class Background:
@@ -114,6 +144,7 @@ class App:
 
         self.init_player()
         self.bg = Background()
+        self.difficulty = Difficulty(app=self, multiplier=1.2)
 
         pyxel.run(self.update, self.draw)
 
@@ -266,6 +297,8 @@ class App:
                     if particle.age >= particle.life:
                         particle.active = False
                     particle.update()
+
+            self.difficulty.increase_difficulty()
 
     def draw(self):
         if self.intro:
