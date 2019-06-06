@@ -9,6 +9,7 @@ import string
 
 import pyxel
 
+from game.button_config import ControllerConfig
 from game.highscores import Highscores
 from game.player import Player, PlayerBody
 from game.projectile import Meteor
@@ -20,6 +21,8 @@ SIZE = Vec2(320, 320)
 
 ASSETS_PATH = f"{os.getcwd()}/assets/sprites.pyxel"
 HIGHSCORE_FILEPATH = f"{os.getcwd()}/highscores.json"
+BUTTON_CONFIG_FILEPATH = f"{os.getcwd()}/button_config.json"
+
 START_LIVES = 1
 LITTLE_METEOR_COUNT = 10
 BIG_METEOR_COUNT = 5
@@ -125,7 +128,8 @@ class App:
         pyxel.load(ASSETS_PATH)
 
         self.particles = []
-
+        self.control_config_in_progress = False
+        self.control_config = ControllerConfig(BUTTON_CONFIG_FILEPATH)
         self.intro = True
         self.game_over = False
         self.highscores = Highscores(HIGHSCORE_FILEPATH)
@@ -148,6 +152,7 @@ class App:
     def restart(self):
         pyxel.stop()
         self.intro = True
+        self.control_config_in_progress = False
         self.game_over = False
         self.highscores = Highscores(HIGHSCORE_FILEPATH)
         self.highscore_reached = False
@@ -245,6 +250,17 @@ class App:
             self.particles.append(particle)
 
     def update(self):
+        if self.control_config_in_progress:
+            key = self.control_config.check_for_key(0, 0)
+            if key:
+                self.control_config.update_key(key)
+
+                if self.control_config.config_index > self.control_config.max_index:
+                    self.control_config.save_config()
+                    self.control_config_in_progress = False
+
+            return
+
         if pyxel.btnp(pyxel.KEY_Q) or pyxel.btnp(pyxel.GAMEPAD_1_SELECT):
             pyxel.quit()
 
@@ -253,6 +269,10 @@ class App:
                 pyxel.playm(0, loop=True)
                 self.intro = False
                 self.lives = START_LIVES - 1
+
+            held_controller_button = self.control_config.check_for_key(180, 0)
+            if pyxel.btnp(pyxel.KEY_R) or held_controller_button:
+                self.control_config_in_progress = True
         elif self.game_over:
             self.end_game()
         else:
@@ -298,10 +318,17 @@ class App:
             self.difficulty.increase_difficulty()
 
     def draw(self):
-        if self.intro:
+        if self.control_config_in_progress:
+            pyxel.cls(0)
+            key_to_change = self.control_config.key_to_change()
+            pyxel.text(115, 50, f"Push controller key for: {key_to_change}", 9)
+            return
+
+        elif self.intro:
             pyxel.cls(0)
             pyxel.text(85, 40, GAME_NAME, pyxel.frame_count % 16)
             pyxel.text(115, 50, "Press SPACE to start", 9)
+            pyxel.text(20, 60, "Press R (Keyboard) OR Any controller button to assign controller keys", 9)
             pyxel.text(135, 80, "HIGHSCORES:", 7)
             for i, x in enumerate(self.highscores.ordered_score_list()):
                 pyxel.text(
