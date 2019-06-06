@@ -43,7 +43,6 @@ class Difficulty:
 
     def increase_difficulty(self):
         if self.app.score >= 1000 and self.app.score % 250 == 0:
-            print(f'small meteor count: {len(self.app.small_meteors)}')
             self.app.small_meteors = self.app.small_meteors + [
                 Meteor(
                     Vec2(randint(0, SIZE.x), -randint(0, SIZE.y)),
@@ -51,8 +50,6 @@ class Difficulty:
                     SIZE
                 ) for _ in range(int(self.multiplier * LITTLE_METEOR_COUNT - LITTLE_METEOR_COUNT))
             ]
-
-            print(f'big meteor count: {len(self.app.big_meteors)}')
 
             self.app.big_meteors = self.app.big_meteors + [
                 Meteor(
