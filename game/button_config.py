@@ -16,6 +16,16 @@ class ControllerConfig:
         self.load_button_config()
         self.config_index = 0
         self.max_index = TOTAL_BUTTONS - 1
+        self.timer = 0
+
+    def btn_hold(self, key):
+        press = pyxel.btn(key)
+        if press:
+            self.timer += press
+        else:
+            self.timer = 0
+
+        return self.timer > 120
 
     @staticmethod
     def check_for_key(hold, period):

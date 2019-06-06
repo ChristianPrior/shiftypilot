@@ -270,8 +270,7 @@ class App:
                 self.intro = False
                 self.lives = START_LIVES - 1
 
-            held_controller_button = self.control_config.check_for_key(180, 0)
-            if pyxel.btnp(pyxel.KEY_R) or held_controller_button:
+            if pyxel.btnp(pyxel.KEY_R) or self.control_config.btn_hold(pyxel.KEY_T):
                 self.control_config_in_progress = True
         elif self.game_over:
             self.end_game()
