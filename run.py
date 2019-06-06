@@ -129,7 +129,7 @@ class App:
 
         self.particles = []
         self.control_config_in_progress = False
-        self.control_config = ControllerConfig(BUTTON_CONFIG_FILEPATH)
+        self.controls = ControllerConfig(BUTTON_CONFIG_FILEPATH)
         self.intro = True
         self.game_over = False
         self.highscores = Highscores(HIGHSCORE_FILEPATH)
@@ -203,7 +203,7 @@ class App:
 
     def end_game(self):
         if not self.highscore_reached:
-            if btnpi(pyxel.KEY_SPACE) or btnpi(pyxel.GAMEPAD_1_START):
+            if btnpi(pyxel.KEY_SPACE) or btnpi(self.controls.mapping[self.controls.START]):
                 self.highscores.move_to_next = True
                 self.restart()
             return
@@ -213,15 +213,15 @@ class App:
             self.restart()
             return
 
-        if btnpi(pyxel.KEY_W) or btnpi(pyxel.GAMEPAD_1_UP):
+        if btnpi(pyxel.KEY_W) or btnpi(self.controls.mapping[self.controls.UP]):
             pyxel.play(0, 4)
             self.highscores.alphabet_direction = 1
 
-        elif btnpi(pyxel.KEY_S) or btnpi(pyxel.GAMEPAD_1_DOWN):
+        elif btnpi(pyxel.KEY_S) or btnpi(self.controls.mapping[self.controls.DOWN]):
             pyxel.play(0, 4)
             self.highscores.alphabet_direction = -1
 
-        if btnpi(pyxel.KEY_SPACE) or btnpi(pyxel.GAMEPAD_1_START):
+        if btnpi(pyxel.KEY_SPACE) or btnpi(self.controls.mapping[self.controls.START]):
             pyxel.play(0, 4)
             self.highscores.move_to_next = True
 
@@ -251,26 +251,30 @@ class App:
 
     def update(self):
         if self.control_config_in_progress:
-            key = self.control_config.check_for_key(0, 0)
-            if key:
-                self.control_config.update_key(key)
+            if pyxel.btnp(pyxel.KEY_Q):
+                pyxel.quit()
 
-                if self.control_config.config_index > self.control_config.max_index:
-                    self.control_config.save_config()
+            key = self.controls.check_for_key()
+            if key:
+                self.controls.update_key(key)
+
+                if self.controls.config_index > self.controls.max_index:
+                    self.controls.save_config()
                     self.control_config_in_progress = False
 
             return
 
-        if pyxel.btnp(pyxel.KEY_Q) or pyxel.btnp(pyxel.GAMEPAD_1_SELECT):
+        if pyxel.btnp(pyxel.KEY_Q) or pyxel.btnp(self.controls.mapping[self.controls.SELECT]):
             pyxel.quit()
 
         if self.intro:
-            if pyxel.btnp(pyxel.KEY_SPACE) or pyxel.btnp(pyxel.GAMEPAD_1_START):
+            if pyxel.btnp(pyxel.KEY_SPACE) or pyxel.btnp(self.controls.mapping[self.controls.START]):
                 pyxel.playm(0, loop=True)
                 self.intro = False
                 self.lives = START_LIVES - 1
 
-            if pyxel.btnp(pyxel.KEY_R) or self.control_config.btn_hold(pyxel.KEY_T):
+            if pyxel.btnp(pyxel.KEY_R) or self.controls.btn_hold(self.controls.check_for_held_key()):
+                print(self.controls.timer)
                 self.control_config_in_progress = True
         elif self.game_over:
             self.end_game()
@@ -278,15 +282,15 @@ class App:
             projectiles = self.small_meteors + self.big_meteors
             self.score += 1
             self.player.velocity_x(
-                (btni(pyxel.KEY_D) or btni(pyxel.GAMEPAD_1_RIGHT)) - (btni(pyxel.KEY_A) or btni(pyxel.GAMEPAD_1_LEFT))
+                (btni(pyxel.KEY_D) or btni(self.controls.mapping[self.controls.RIGHT])) - (btni(pyxel.KEY_A) or btni(self.controls.mapping[self.controls.LEFT]))
             )
             self.player.velocity_y(
-                (btni(pyxel.KEY_S) or btni(pyxel.GAMEPAD_1_DOWN)) - (btni(pyxel.KEY_W) or btni(pyxel.GAMEPAD_1_UP))
+                (btni(pyxel.KEY_S) or btni(self.controls.mapping[self.controls.DOWN])) - (btni(pyxel.KEY_W) or btni(self.controls.mapping[self.controls.UP]))
             )
             self.border_checker()
 
             self.player_body.teleport(
-                (pyxel.btnp(pyxel.KEY_J) or pyxel.btnp(pyxel.GAMEPAD_1_A))    # Christian said use J
+                (pyxel.btnp(pyxel.KEY_J) or pyxel.btnp(self.controls.mapping[self.controls.WARP]))    # Christian said use J
             )
 
             if not self.player_body.in_animation:
@@ -319,7 +323,7 @@ class App:
     def draw(self):
         if self.control_config_in_progress:
             pyxel.cls(0)
-            key_to_change = self.control_config.key_to_change()
+            key_to_change = self.controls.key_to_change()
             pyxel.text(115, 50, f"Push controller key for: {key_to_change}", 9)
             return
 
