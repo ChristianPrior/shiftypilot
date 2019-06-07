@@ -103,7 +103,8 @@ class App:
         else:
             self.lives -= 1
             self.init_player()
-            self.player_body.invincible_frames = 280
+            self.player_body.invincible_frames = 300
+            self.player_body.invincibilty_animation.start()
 
     def end_game(self):
         if not self.highscore_reached:
@@ -279,8 +280,9 @@ class App:
                 )
 
             self.player_body.animate_teleport()
+            self.player_body.animate_invincibility()
 
-            if not self.player_body.in_animation:
+            if not self.player_body.in_animation and not self.player_body.invincibilty_animation.is_active:
                 pyxel.blt(
                     self.player_body.position.x - self.player_body.size.x // 2 - self.cam_x,
                     self.player_body.position.y - self.player_body.size.y // 2 - self.cam_y,

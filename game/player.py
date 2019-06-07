@@ -3,7 +3,7 @@ import pyxel
 from game.gmath import sign
 from game.vector import Vec2
 from game.physics.actor import Actor
-from game.animation import TeleportOut, TeleportIn
+from game.animation import TeleportOut, TeleportIn, Invincibility
 
 
 class Player(Actor):
@@ -36,13 +36,14 @@ class PlayerBody(Actor):
 
     def __init__(self, position: Vec2, size: Vec2, player: Player, app):
         super().__init__(position, size)
+        self.app = app
         self.is_dead = False
         self.velocity = Vec2(0, 0)
         self.player = player
         self.initial_distance = self.player.position - self.position
-        self.teleport_out_animation = TeleportOut(app=self)
-        self.teleport_in_animation = TeleportIn(app=self)
-        self.app = app
+        self.teleport_out_animation = TeleportOut(app=self.app)
+        self.teleport_in_animation = TeleportIn(app=self.app)
+        self.invincibilty_animation = Invincibility(app=self.app, entity=self)
         self.invincible_frames = 0
 
     def velocity_x(self, direction: int):
@@ -92,6 +93,10 @@ class PlayerBody(Actor):
 
         if self.teleport_in_animation and self.teleport_in_animation.is_active:
             self.teleport_in_animation.animate()
+
+    def animate_invincibility(self):
+        if self.invincibilty_animation and self.invincibilty_animation.is_active:
+            self.invincibilty_animation.animate()
 
     def collision(self, projectiles):
         if self.invincible_frames:

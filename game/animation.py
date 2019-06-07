@@ -109,20 +109,45 @@ class TeleportIn(TeleportOut):
         return sprite_mapping[self.current_phase]
 
 
-# class Invincibility(Animation):
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#
-#         self.sprite_mapping = {((
-#                     self.entity.position.x - self.entity.size.x // 2 - self.cam_x,
-#                     self.entity.position.y - self.entity.size.y // 2 - self.cam_y,
-#                     0,
-#                     8,
-#                     0,
-#                     self.entity.size.x,
-#                     self.entity.size.y,
-#                     0
-#                 ), 3)}
+class Invincibility(Animation):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.end_phase = 1
+        self.loop = 60
+
+    def start(self):
+        self.is_active = True
+
+    def get_sprite(self):
+        x, y = (
+            self.entity.position.x - self.entity.size.x // 2 - self.app.cam_x,
+            self.entity.position.y - self.entity.size.y // 2 - self.app.cam_y
+        )
+
+        sprite_mapping = {
+            0: ((x, y, 0, 8, 0, self.entity.size.x, self.entity.size.y, 0), 5),
+            1: ((x, y, 0, 16, 0, self.entity.size.x, self.entity.size.y, 0), 5)
+        }
+
+        return sprite_mapping[self.current_phase]
+
+    def animate(self):
+        sprite, total_frames = self.get_sprite()
+
+        if self.current_phase == self.end_phase and self.frame_count == total_frames and self.loop < 0:
+            self.is_active = False
+
+        if self.frame_count == total_frames:
+            self.loop -= 1
+            if self.current_phase != self.end_phase:
+                self.current_phase += 1
+                self.frame_count = 0
+            else:
+                self.current_phase = 0
+                self.frame_count = 0
+
+        self.frame_count += 1
+        pyxel.blt(*sprite)
 
 
 class Particle:
