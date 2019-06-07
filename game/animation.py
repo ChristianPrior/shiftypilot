@@ -1,3 +1,6 @@
+import math
+from random import random, randint
+
 import pyxel
 
 
@@ -103,3 +106,31 @@ class TeleportIn(TeleportOut):
         }
 
         return sprite_mapping[self.current_phase]
+
+
+class Particle:
+    ramp = [7, 13, 12, 12, 13, 2, 1, 2]
+
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+        ang = random() * math.tau
+        self.vx = math.cos(ang) * 0.1
+        self.vy = math.sin(ang) * 0.1
+
+        self.life = randint(45, 75)
+        self.age = 0
+
+        self.active = True
+
+    def update(self):
+        self.x += self.vx
+        self.y += self.vy
+        if self.age < self.life:
+            self.age += 1
+
+    def draw(self):
+        fract = self.age / self.life
+        col = self.ramp[int(fract * (len(self.ramp) - 1))]
+        pyxel.circ(self.x, self.y, 1, col)
