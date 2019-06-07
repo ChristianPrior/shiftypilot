@@ -11,6 +11,6 @@ ASSETS_PATH = f"{os.getcwd()}/assets/sprites.pyxel"
 HIGHSCORE_FILEPATH = f"{os.getcwd()}/highscores.json"
 BUTTON_CONFIG_FILEPATH = f"{os.getcwd()}/button_config.json"
 
-START_LIVES = 1
+START_LIVES = 3
 LITTLE_METEOR_COUNT = 10
 BIG_METEOR_COUNT = 5

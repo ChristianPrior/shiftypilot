@@ -102,8 +102,8 @@ class App:
 
         else:
             self.lives -= 1
-            self.small_meteors = self.init_small_meteors()
             self.init_player()
+            self.player_body.invincible_frames = 280
 
     def end_game(self):
         if not self.highscore_reached:
@@ -175,7 +175,6 @@ class App:
                 self.lives = START_LIVES - 1
 
             if pyxel.btnp(pyxel.KEY_R) or self.controls.btn_hold(self.controls.check_for_held_key()):
-                print(self.controls.timer)
                 self.control_config_in_progress = True
 
             if pyxel.btnp(pyxel.KEY_Q) or pyxel.btnp(self.controls.mapping[self.controls.SELECT]):

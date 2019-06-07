@@ -43,6 +43,7 @@ class PlayerBody(Actor):
         self.teleport_out_animation = TeleportOut()
         self.teleport_in_animation = TeleportIn()
         self.app = app
+        self.invincible_frames = 0
 
     def velocity_x(self, direction: int):
         direction = sign(direction)
@@ -93,6 +94,10 @@ class PlayerBody(Actor):
             self.teleport_in_animation.animate(cam_x, cam_y)
 
     def collision(self, projectiles):
+        if self.invincible_frames:
+            self.invincible_frames -= 1
+            return False
+
         for projectile in projectiles:
             gap = self.position - projectile.position
             if (abs(gap.x) < self.size.x // 2 + projectile.size.x // 2
