@@ -99,12 +99,13 @@ class App:
                 self.highscore_reached = True
             else:
                 pyxel.play(0, 5)
-
         else:
             self.lives -= 1
-            self.init_player()
+            self.player.position = SIZE // 2 + Vec2(0, 80)
+            self.player_body.teleport(activated=True)
             self.player_body.invincible_frames = 300
             self.player_body.invincibilty_animation.start()
+            self.player_body.is_dead = False
 
     def end_game(self):
         if not self.highscore_reached:

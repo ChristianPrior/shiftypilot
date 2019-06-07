@@ -99,7 +99,7 @@ class PlayerBody(Actor):
             self.invincibilty_animation.animate()
 
     def collision(self, projectiles):
-        if self.invincible_frames:
+        if self.invincible_frames > 0:
             self.invincible_frames -= 1
             return False
 

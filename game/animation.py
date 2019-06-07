@@ -110,10 +110,12 @@ class TeleportIn(TeleportOut):
 
 
 class Invincibility(Animation):
+    LOOP_COUNT = 60
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.end_phase = 1
-        self.loop = 60
+        self.end_phase = 3
+        self.loop = self.LOOP_COUNT
 
     def start(self):
         self.is_active = True
@@ -125,8 +127,10 @@ class Invincibility(Animation):
         )
 
         sprite_mapping = {
-            0: ((x, y, 0, 8, 0, self.entity.size.x, self.entity.size.y, 0), 5),
-            1: ((x, y, 0, 16, 0, self.entity.size.x, self.entity.size.y, 0), 5)
+            0: ((x, y, 0, 40, 16, self.entity.size.x, self.entity.size.y, 0), 5),
+            1: ((x, y, 0, 40, 24, self.entity.size.x, self.entity.size.y, 0), 5),
+            2: ((x, y, 0, 48, 16, self.entity.size.x, self.entity.size.y, 0), 5),
+            3: ((x, y, 0, 48, 24, self.entity.size.x, self.entity.size.y, 0), 5)
         }
 
         return sprite_mapping[self.current_phase]
@@ -136,6 +140,7 @@ class Invincibility(Animation):
 
         if self.current_phase == self.end_phase and self.frame_count == total_frames and self.loop < 0:
             self.is_active = False
+            self.loop = self.LOOP_COUNT
 
         if self.frame_count == total_frames:
             self.loop -= 1
