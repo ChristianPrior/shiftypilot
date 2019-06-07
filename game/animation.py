@@ -12,8 +12,9 @@ class Animation:
     sprite_mapping = {}
     is_active = False
 
-    def __init__(self, start_phase=start_phase, end_phase=end_phase, frame_count=frame_count, start_pos_x=None,
+    def __init__(self, app, start_phase=start_phase, end_phase=end_phase, frame_count=frame_count, start_pos_x=None,
                  start_pos_y=None, entity=None):
+        self.app = app
         self.start_phase = start_phase
         self.end_phase = end_phase
         self.frame_count = frame_count
@@ -32,8 +33,8 @@ class TeleportOut(Animation):
         self.is_active = True
         self.entity.in_animation = True
 
-    def animate(self, cam_x, cam_y):
-        sprite, total_frames = self.get_sprite(cam_x, cam_y)
+    def animate(self):
+        sprite, total_frames = self.get_sprite()
 
         if self.current_phase == self.end_phase and self.frame_count == total_frames:
             self.is_active = False
@@ -48,10 +49,10 @@ class TeleportOut(Animation):
 
         pyxel.blt(*sprite)
 
-    def get_sprite(self, cam_x, cam_y):
+    def get_sprite(self):
         x, y = (
-            self.entity.position.x - self.entity.size.x // 2 - cam_x,
-            self.entity.position.y - self.entity.size.y // 2 - cam_y
+            self.entity.position.x - self.entity.size.x // 2 - self.app.cam_x,
+            self.entity.position.y - self.entity.size.y // 2 - self.app.cam_y
         )
         sprite_mapping = {
             7: ((x + 3, y + 3, 0, 120, 0, 2, 2, 0), 1),
@@ -73,8 +74,8 @@ class TeleportIn(TeleportOut):
         super().__init__(*args, **kwargs)
         self.end_phase = 7
 
-    def animate(self, cam_x, cam_y):
-        sprite, total_frames = self.get_sprite(cam_x, cam_y)
+    def animate(self):
+        sprite, total_frames = self.get_sprite()
 
         if self.current_phase == self.end_phase and self.frame_count == total_frames:
             self.is_active = False
@@ -89,10 +90,10 @@ class TeleportIn(TeleportOut):
 
         pyxel.blt(*sprite)
 
-    def get_sprite(self, cam_x, cam_y):
+    def get_sprite(self):
         x, y = (
-            self.entity.position.x - self.entity.size.x // 2 - cam_x,
-            self.entity.position.y - self.entity.size.y // 2- cam_y
+            self.entity.position.x - self.entity.size.x // 2 - self.app.cam_x,
+            self.entity.position.y - self.entity.size.y // 2 - self.app.cam_y
         )
         sprite_mapping = {
             0: ((x + 3, y + 3, 0, 120, 0, 2, 2, 0), 1),
@@ -106,6 +107,22 @@ class TeleportIn(TeleportOut):
         }
 
         return sprite_mapping[self.current_phase]
+
+
+# class Invincibility(Animation):
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#
+#         self.sprite_mapping = {((
+#                     self.entity.position.x - self.entity.size.x // 2 - self.cam_x,
+#                     self.entity.position.y - self.entity.size.y // 2 - self.cam_y,
+#                     0,
+#                     8,
+#                     0,
+#                     self.entity.size.x,
+#                     self.entity.size.y,
+#                     0
+#                 ), 3)}
 
 
 class Particle:

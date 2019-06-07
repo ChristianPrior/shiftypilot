@@ -278,12 +278,12 @@ class App:
                     0
                 )
 
-            self.player_body.animate_teleport(cam_x=self.cam_x, cam_y=self.cam_y)
+            self.player_body.animate_teleport()
 
             if not self.player_body.in_animation:
                 pyxel.blt(
-                    self.player_body.position.x - self.player.size.x // 2 - self.cam_x,
-                    self.player_body.position.y - self.player.size.y // 2 - self.cam_y,
+                    self.player_body.position.x - self.player_body.size.x // 2 - self.cam_x,
+                    self.player_body.position.y - self.player_body.size.y // 2 - self.cam_y,
                     0,
                     8,
                     0,

@@ -40,8 +40,8 @@ class PlayerBody(Actor):
         self.velocity = Vec2(0, 0)
         self.player = player
         self.initial_distance = self.player.position - self.position
-        self.teleport_out_animation = TeleportOut()
-        self.teleport_in_animation = TeleportIn()
+        self.teleport_out_animation = TeleportOut(app=self)
+        self.teleport_in_animation = TeleportIn(app=self)
         self.app = app
         self.invincible_frames = 0
 
@@ -65,12 +65,12 @@ class PlayerBody(Actor):
         if activated:
             pyxel.play(0, 2)
             self.app.cam_punch = 10
-            self.teleport_out_animation = TeleportOut(start_pos_x=x, start_pos_y=y, entity=self)
+            self.teleport_out_animation = TeleportOut(app=self.app, start_pos_x=x, start_pos_y=y, entity=self)
             self.teleport_out_animation.start()
 
-    def animate_teleport(self, cam_x, cam_y):
+    def animate_teleport(self):
         if self.teleport_out_animation and self.teleport_out_animation.is_active:
-            self.teleport_out_animation.animate(cam_x, cam_y)
+            self.teleport_out_animation.animate()
 
             if self.teleport_out_animation.current_phase == self.teleport_out_animation.end_phase:
                 start_x = self.position.x
@@ -87,11 +87,11 @@ class PlayerBody(Actor):
                     t /= 10
                     self.app.add_particle(start_x + dx * t, start_y + dy * t)
 
-                self.teleport_in_animation = TeleportIn(start_pos_x=x, start_pos_y=y, entity=self)
+                self.teleport_in_animation = TeleportIn(app=self.app, start_pos_x=x, start_pos_y=y, entity=self)
                 self.teleport_in_animation.start()
 
         if self.teleport_in_animation and self.teleport_in_animation.is_active:
-            self.teleport_in_animation.animate(cam_x, cam_y)
+            self.teleport_in_animation.animate()
 
     def collision(self, projectiles):
         if self.invincible_frames:
