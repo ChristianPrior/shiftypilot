@@ -1,13 +1,13 @@
 from pyxel import constants
 
 from game.animation import Particle
+from game.config import SIZE, ASSETS_PATH, GAME_NAME, BUTTON_CONFIG_FILEPATH, HIGHSCORE_FILEPATH, LITTLE_METEOR_COUNT, \
+    BIG_METEOR_COUNT, START_LIVES
 from game.level import Background, Difficulty
 
 constants.APP_SCREEN_MAX_SIZE = 320
 
-import os
 from random import randint, random
-import string
 
 import pyxel
 
@@ -16,18 +16,6 @@ from game.highscores import Highscores
 from game.player import Player, PlayerBody
 from game.projectile import Meteor
 from game.vector import Vec2
-
-ALPHABET = string.ascii_uppercase
-GAME_NAME = "Shifty Pilot 1: Galactic Apocalypse"
-SIZE = Vec2(320, 320)
-
-ASSETS_PATH = f"{os.getcwd()}/assets/sprites.pyxel"
-HIGHSCORE_FILEPATH = f"{os.getcwd()}/highscores.json"
-BUTTON_CONFIG_FILEPATH = f"{os.getcwd()}/button_config.json"
-
-START_LIVES = 1
-LITTLE_METEOR_COUNT = 10
-BIG_METEOR_COUNT = 5
 
 
 def btni(key):
@@ -180,9 +168,6 @@ class App:
 
             return
 
-        if pyxel.btnp(pyxel.KEY_Q) or pyxel.btnp(self.controls.mapping[self.controls.SELECT]):
-            pyxel.quit()
-
         if self.intro:
             if pyxel.btnp(pyxel.KEY_SPACE) or pyxel.btnp(self.controls.mapping[self.controls.START]):
                 pyxel.playm(0, loop=True)
@@ -192,6 +177,9 @@ class App:
             if pyxel.btnp(pyxel.KEY_R) or self.controls.btn_hold(self.controls.check_for_held_key()):
                 print(self.controls.timer)
                 self.control_config_in_progress = True
+
+            if pyxel.btnp(pyxel.KEY_Q) or pyxel.btnp(self.controls.mapping[self.controls.SELECT]):
+                pyxel.quit()
         elif self.game_over:
             self.end_game()
         else:

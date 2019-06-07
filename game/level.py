@@ -2,9 +2,9 @@ from random import randint, choice, randrange
 
 import pyxel
 
+from game.config import SIZE, LITTLE_METEOR_COUNT, BIG_METEOR_COUNT
 from game.projectile import Meteor
 from game.vector import Vec2
-from run import SIZE, LITTLE_METEOR_COUNT, BIG_METEOR_COUNT
 
 
 class Difficulty:
