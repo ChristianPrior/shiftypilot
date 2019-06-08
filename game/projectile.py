@@ -25,8 +25,13 @@ class Projectile(Actor):
 
         self.velocity.y = direction * self.MOVEMENT_SPD_Y
 
-    def update(self):
+    def update(self, end_sequence=False):
         self.move_y(1)
+
+        if end_sequence:
+            if self.position.y > self.screen_size.y:
+                self.is_active = False
+            return
 
         if self.position.y > self.screen_size.y:
             self.position.x = randint(0, self.screen_size.x)

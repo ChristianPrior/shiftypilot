@@ -1,20 +1,18 @@
 from pyxel import constants
 
 from game.animation import Particle
-from game.config import SIZE, ASSETS_PATH, GAME_NAME, BUTTON_CONFIG_FILEPATH, HIGHSCORE_FILEPATH, LITTLE_METEOR_COUNT, \
-    BIG_METEOR_COUNT, START_LIVES
-from game.level import Background, Difficulty
+from game.config import SIZE, ASSETS_PATH, GAME_NAME, BUTTON_CONFIG_FILEPATH, HIGHSCORE_FILEPATH, START_LIVES
+from game.level import Background, Level, LevelOne, LevelTwo
 
 constants.APP_SCREEN_MAX_SIZE = 320
 
-from random import randint, random
+from random import random
 
 import pyxel
 
 from game.button_config import ControllerConfig
 from game.highscores import Highscores
 from game.player import Player, PlayerBody
-from game.projectile import Meteor
 from game.vector import Vec2
 
 
@@ -31,6 +29,7 @@ class App:
         pyxel.init(SIZE.x, SIZE.y, caption=GAME_NAME, fps=60)
         pyxel.load(ASSETS_PATH)
 
+        self.level = None
         self.particles = []
         self.control_config_in_progress = False
         self.controls = ControllerConfig(BUTTON_CONFIG_FILEPATH)
@@ -38,8 +37,6 @@ class App:
         self.game_over = False
         self.highscores = Highscores(HIGHSCORE_FILEPATH)
         self.highscore_reached = False
-        self.small_meteors = self.init_small_meteors()
-        self.big_meteors = self.init_big_meteors()
         self.score = 0
         self.lives = 0
 
@@ -49,7 +46,6 @@ class App:
 
         self.init_player()
         self.bg = Background()
-        self.difficulty = Difficulty(app=self, multiplier=1.2)
 
         pyxel.run(self.update, self.draw)
 
@@ -60,8 +56,8 @@ class App:
         self.game_over = False
         self.highscores = Highscores(HIGHSCORE_FILEPATH)
         self.highscore_reached = False
-        self.small_meteors = self.init_small_meteors()
-        self.big_meteors = self.init_big_meteors()
+
+        self.level = None
         self.score = 0
         self.lives = 0
 
@@ -70,24 +66,6 @@ class App:
     def init_player(self):
         self.player = Player(SIZE // 2 + Vec2(0, 80), Vec2(8, 8))
         self.player_body = PlayerBody(SIZE // 2 + Vec2(0, 100), Vec2(8, 8), player=self.player, app=self)
-
-    def init_small_meteors(self):
-        return [
-            Meteor(
-                Vec2(randint(0, SIZE.x), -randint(0, SIZE.y)),
-                Vec2(8, 8),
-                SIZE
-            ) for _ in range(LITTLE_METEOR_COUNT)
-        ]
-
-    def init_big_meteors(self):
-        return [
-            Meteor(
-                Vec2(randint(0, SIZE.x), -randint(0, SIZE.y)),
-                Vec2(16, 16),
-                SIZE
-            ) for _ in range(BIG_METEOR_COUNT)
-        ]
 
     def death(self):
         pyxel.play(0, 3)
@@ -175,6 +153,7 @@ class App:
                 pyxel.playm(0, loop=True)
                 self.intro = False
                 self.lives = START_LIVES - 1
+                self.level = LevelOne(app=self)
 
             if pyxel.btnp(pyxel.KEY_R) or self.controls.btn_hold(self.controls.check_for_held_key()):
                 self.control_config_in_progress = True
@@ -184,7 +163,6 @@ class App:
         elif self.game_over:
             self.end_game()
         else:
-            projectiles = self.small_meteors + self.big_meteors
             self.score += 1
             self.player.velocity_x(
                 (btni(pyxel.KEY_D) or btni(self.controls.mapping[self.controls.RIGHT])) - (btni(pyxel.KEY_A) or btni(self.controls.mapping[self.controls.LEFT]))
@@ -200,13 +178,11 @@ class App:
 
             if not self.player_body.in_animation:
                 self.player.update()
+
+            projectiles = self.level.small_meteors + self.level.big_meteors
             self.player_body.update(projectiles)
             if self.player_body.is_dead:
                 self.death()
-            for meteor in self.small_meteors:
-                meteor.update()
-            for meteor in self.big_meteors:
-                meteor.update()
 
             if self.cam_punch > 0:
                 self.cam_x = -self.cam_punch + random() * self.cam_punch * 2
@@ -223,7 +199,10 @@ class App:
                         particle.active = False
                     particle.update()
 
-            self.difficulty.increase_difficulty()
+            if self.level.LEVEL_COUNT == 1 and self.level.is_active is False:
+                self.level = LevelTwo(app=self)
+
+            self.level.update()
 
     def draw(self):
         if self.control_config_in_progress:
@@ -258,11 +237,7 @@ class App:
         else:
             pyxel.cls(0)
             self.bg.draw()
-
-            score_text = f"Score: {self.score}"
-            life_text = f"Lives: {self.lives + 1}"
-            pyxel.text(5, 5, score_text, 9)
-            pyxel.text(50, 5, life_text, 9)
+            self.level.draw()
 
             for particle in self.particles:
                 if particle.active:
@@ -295,31 +270,10 @@ class App:
                     0
                 )
 
-            for meteor in self.small_meteors:
-                if meteor.is_active:
-                    pyxel.blt(
-                        meteor.position.x - meteor.size.x // 2 - self.cam_x,
-                        meteor.position.y - meteor.size.y // 2 - self.cam_y,
-                        0,
-                        0,
-                        16 + (8 * meteor.kind),
-                        meteor.size.x,
-                        meteor.size.y,
-                        0
-                    )
-
-            for meteor in self.big_meteors:
-                if meteor.is_active:
-                    pyxel.blt(
-                        meteor.position.x - meteor.size.x // 2 - self.cam_x,
-                        meteor.position.y - meteor.size.y // 2 - self.cam_y,
-                        0,
-                        8 + (16 * meteor.kind),
-                        16,
-                        meteor.size.x,
-                        meteor.size.y,
-                        0
-                    )
+            score_text = f"Score: {self.score}"
+            life_text = f"Lives: {self.lives + 1}"
+            pyxel.text(5, 5, score_text, 9)
+            pyxel.text(50, 5, life_text, 9)
 
 
 App()
