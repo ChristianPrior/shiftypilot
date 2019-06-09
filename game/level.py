@@ -1,6 +1,8 @@
-from random import randint, choice, randrange
+from random import randint, choice, randrange, uniform
 
 import pyxel
+
+from game.config import HIGHSCORE_GAME_MODE
 
 from game.config import SIZE, LITTLE_METEOR_COUNT, BIG_METEOR_COUNT
 from game.projectile import Meteor
@@ -15,15 +17,16 @@ class Difficulty:
         self.app = app
         self.multiplier = multiplier
 
-    #     self.reset_difficulty()
+    #     self.reset()
     #
-    # def reset_difficulty(self):
+    # def reset(self):
     #     if self.app.level:
     #         self.app.level.small_meteors = [
     #                 Meteor(
     #                     Vec2(randint(0, SIZE.x), -randint(0, SIZE.y)),
     #                     Vec2(8, 8),
-    #                     SIZE
+    #                     SIZE,
+    #                     move_speed=Vec2(0, uniform(0.5, 1.5))
     #                 ) for _ in range(LITTLE_METEOR_COUNT)
     #             ]
     #
@@ -31,27 +34,29 @@ class Difficulty:
     #             Meteor(
     #                 Vec2(randint(0, SIZE.x), -randint(0, SIZE.y)),
     #                 Vec2(16, 16),
-    #                 SIZE
+    #                 SIZE,
+    #                 move_speed=Vec2(0, uniform(0.5, 1.5))
     #             ) for _ in range(BIG_METEOR_COUNT)
     #         ]
 
     def increase_difficulty(self):
-        if self.app.score >= 1000 and self.app.score % 250 == 0:
-            self.app.level.small_meteors = self.app.level.small_meteors + [
-                Meteor(
-                    Vec2(randint(0, SIZE.x), -randint(0, SIZE.y)),
-                    Vec2(8, 8),
-                    SIZE
-                ) for _ in range(int(self.multiplier * LITTLE_METEOR_COUNT - LITTLE_METEOR_COUNT))
-            ]
+        self.app.level.small_meteors = self.app.level.small_meteors + [
+            Meteor(
+                Vec2(randint(0, SIZE.x), -randint(0, SIZE.y)),
+                Vec2(8, 8),
+                SIZE,
+                move_speed=Vec2(0, uniform(0.5, 1.5))
+            ) for _ in range(int(self.multiplier * LITTLE_METEOR_COUNT - LITTLE_METEOR_COUNT))
+        ]
 
-            self.app.level.big_meteors = self.app.level.big_meteors + [
-                Meteor(
-                    Vec2(randint(0, SIZE.x), -randint(0, SIZE.y)),
-                    Vec2(16, 16),
-                    SIZE
-                ) for _ in range(int(self.multiplier * BIG_METEOR_COUNT - BIG_METEOR_COUNT))
-            ]
+        self.app.level.big_meteors = self.app.level.big_meteors + [
+            Meteor(
+                Vec2(randint(0, SIZE.x), -randint(0, SIZE.y)),
+                Vec2(16, 16),
+                SIZE,
+                move_speed=Vec2(0, uniform(0.5, 1.5))
+            ) for _ in range(int(self.multiplier * BIG_METEOR_COUNT - BIG_METEOR_COUNT))
+        ]
 
 
 class Level:
@@ -62,8 +67,10 @@ class Level:
         self.app = app
         self.difficulty = difficulty or Difficulty(app=self.app, multiplier=1.2)
         self.is_active = True
-        self.small_meteors = []
-        self.big_meteors = []
+        self.small_meteors: list
+        self.big_meteors: list
+        self.level_phases: dict
+        self.current_phase = 0
 
     def update(self):
         raise NotImplementedError(f'update function for Level {self.LEVEL_COUNT} not implemented')
@@ -79,16 +86,26 @@ class LevelOne(Level):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.level_phases = self.init_phases()
         self.small_meteors = self.init_small_meteors()
         self.big_meteors = self.init_big_meteors()
+
+    def init_phases(self):
+        phase_mapping = {
+            0: {"update_func": self.phase_zero_update, "length": 100},
+            1: {"update_func": self.phase_one_update, "length": 500}
+
+        }
+        return phase_mapping
 
     @staticmethod
     def init_small_meteors():
         return [
             Meteor(
-                Vec2(randint(0, SIZE.x), -randint(0, SIZE.y)),
+                Vec2(randint(0, SIZE.x), -randint(4, SIZE.y)),
                 Vec2(8, 8),
-                SIZE
+                SIZE,
+                move_speed=Vec2(0, uniform(0.5, 1.5))
             ) for _ in range(LITTLE_METEOR_COUNT)
         ]
 
@@ -96,34 +113,73 @@ class LevelOne(Level):
     def init_big_meteors():
         return [
             Meteor(
-                Vec2(randint(0, SIZE.x), -randint(0, SIZE.y)),
+                Vec2(randint(0, SIZE.x), -randint(8, SIZE.y)),
                 Vec2(16, 16),
-                SIZE
+                SIZE,
+                move_speed=Vec2(0, uniform(0.5, 1.5))
             ) for _ in range(BIG_METEOR_COUNT)
         ]
 
-    def level_end(self):
-        if self.LEVEL_END_TIME and self.timer > self.LEVEL_END_TIME:
-            return True
-        return False
+    def phase_has_ended(self, phase):
+        if phase == 1 and HIGHSCORE_GAME_MODE:
+            return False, False
+
+        elapsed_phase_length_sum = 0
+        for phase_count in range(phase + 1):
+            elapsed_phase_length_sum += self.level_phases[phase_count]['length']
+
+        has_ended = elapsed_phase_length_sum - self.timer <= 0
+        end_frame = elapsed_phase_length_sum - self.timer == 0
+
+        return has_ended, end_frame
+
+    # def level_end(self):
+    #     if self.LEVEL_END_TIME and self.timer > self.LEVEL_END_TIME:
+    #         self.is_active = False
+    #         return True
+    #     return False
+
+    def increment_phase(self):
+        self.current_phase += 1
+        print('incrementing phase')
+
+    def phase_zero_update(self):
+        _, end_frame = self.phase_has_ended(0)
+
+        if end_frame:
+            print(self.timer)
+            print('ending phase 0')
+            self.increment_phase()
+
+    def phase_one_update(self):
+        if self.current_phase == 1:
+            phase_ended, end_frame = self.phase_has_ended(1)
+
+            if end_frame and not HIGHSCORE_GAME_MODE:
+                print(self.timer)
+                print('ending phase 1')
+
+            if phase_ended:
+                for meteor in self.small_meteors:
+                    meteor.update(end_sequence=True)
+                for meteor in self.big_meteors:
+                    meteor.update(end_sequence=True)
+
+                if (not any(meteor.is_active for meteor in self.small_meteors)
+                        and not any(meteor.is_active for meteor in self.big_meteors)):
+                    self.increment_phase()
+            else:
+                for meteor in self.small_meteors:
+                    meteor.update()
+                for meteor in self.big_meteors:
+                    meteor.update()
+
+                if self.app.score % 250 == 0:
+                    self.difficulty.increase_difficulty()
 
     def update(self):
-        if self.level_end():
-            for meteor in self.small_meteors:
-                meteor.update(end_sequence=True)
-            for meteor in self.big_meteors:
-                meteor.update(end_sequence=True)
-
-            if (not any(meteor.is_active for meteor in self.small_meteors)
-                    and not any(meteor.is_active for meteor in self.big_meteors)):
-                self.is_active = False
-        else:
-            for meteor in self.small_meteors:
-                meteor.update()
-            for meteor in self.big_meteors:
-                meteor.update()
-
-            self.difficulty.increase_difficulty()
+        for phase in self.level_phases.keys():
+            self.level_phases[phase]['update_func']()
 
         self.timer += 1
 
@@ -168,7 +224,7 @@ class LevelTwo(Level):
 class Background:
     star_colours = [5, 6]
     star_sep_distance = 13
-    scroll_speed = 0.1
+    scroll_speed = 0.2
 
     def __init__(self, tilemap=0):
         self.tilemap = tilemap
