@@ -273,7 +273,7 @@ class App:
             score_text = f"Score: {self.score}"
             life_text = f"Lives: {self.lives + 1}"
             pyxel.text(5, 5, score_text, 9)
-            pyxel.text(50, 5, life_text, 9)
+            pyxel.text(60, 5, life_text, 9)
 
 
 App()
