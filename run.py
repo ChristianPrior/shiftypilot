@@ -213,9 +213,10 @@ class App:
 
         elif self.intro:
             pyxel.cls(0)
-            pyxel.text(85, 40, GAME_NAME, pyxel.frame_count % 16)
-            pyxel.text(115, 50, "Press SPACE to start", 9)
-            pyxel.text(20, 60, "Press R (Keyboard) OR Any controller button to assign controller keys", 9)
+            pyxel.text(85, 30, GAME_NAME, pyxel.frame_count % 16)
+            pyxel.text(100, 40, "Press START button to start", 9)
+            pyxel.text(100, 50, "Press SELECT button to quit", 9)
+            pyxel.text(55, 60, "Hold any controller button to assign controller keys", 9)
             pyxel.text(135, 80, "HIGHSCORES:", 7)
             for i, x in enumerate(self.highscores.ordered_score_list()):
                 pyxel.text(
@@ -227,12 +228,12 @@ class App:
 
         elif self.game_over:
             pyxel.cls(0)
-            pyxel.text(135, 60, "GAME OVER", 9)
+            pyxel.text(140, 60, "GAME OVER", 9)
             if self.highscore_reached:
-                pyxel.text(100, 80, f"Enter name: {self.highscores.highscore_name}", 9)
-                pyxel.text(100, 90, "USE 'W' 'S' and 'SPACE' keys", 9)
+                pyxel.text(130, 80, f"Enter name: {self.highscores.highscore_name}", 9)
+                pyxel.text(55, 100, "USE UP and DOWN to select letters and START to confirm", 9)
             else:
-                pyxel.text(110, 80, "Push space to restart", 9)
+                pyxel.text(100, 80, "Push START to restart game", 9)
 
         else:
             pyxel.cls(0)
