@@ -1,8 +1,9 @@
 from pyxel import constants
 
 from game.animation import Particle
-from game.config import SIZE, ASSETS_PATH, GAME_NAME, BUTTON_CONFIG_FILEPATH, HIGHSCORE_FILEPATH, START_LIVES
-from game.level import Background, Level, LevelOne, LevelTwo
+from game.config import SIZE, ASSETS_PATH, GAME_NAME, BUTTON_CONFIG_FILEPATH, HIGHSCORE_FILEPATH, START_LIVES, \
+    HIGHSCORE_GAME_MODE
+from game.level import Background, Level, LevelOne, LevelTwo, HighscoreLevel
 
 constants.APP_SCREEN_MAX_SIZE = 320
 
@@ -153,7 +154,11 @@ class App:
                 pyxel.playm(0, loop=True)
                 self.intro = False
                 self.lives = START_LIVES - 1
-                self.level = LevelOne(app=self)
+
+                if HIGHSCORE_GAME_MODE:
+                    self.level = HighscoreLevel(app=self)
+                else:
+                    self.level = LevelOne(app=self)
 
             if pyxel.btnp(pyxel.KEY_R) or self.controls.btn_hold(self.controls.check_for_held_key()):
                 self.control_config_in_progress = True
