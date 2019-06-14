@@ -35,7 +35,7 @@ class Meteor(Projectile):
         self.kind = random.randint(0, 1)
         self.move_speed = move_speed
 
-    def update(self, end_sequence=False):
+    def update(self, end_sequence=False, speed_range=(0.5, 1.5)):
         self.velocity_y(1)
 
         if end_sequence:
@@ -48,7 +48,7 @@ class Meteor(Projectile):
         if self.position.y - self.size.y // 2 > self.screen_size.y:
             self.position.x = random.randint(0, self.screen_size.x)
             self.position.y = -random.randint(self.size.y // 2, self.screen_size.y // 2)
-            self.move_speed.y = random.uniform(0.5, 1.5)
+            self.move_speed.y = random.uniform(*speed_range)
             self.is_active = True
 
         self.move_y(self.velocity.y)
