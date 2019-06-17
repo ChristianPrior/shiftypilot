@@ -1,11 +1,7 @@
-from pyxel import constants
-
 from game.animation import Particle
 from game.config import SIZE, ASSETS_PATH, GAME_NAME, BUTTON_CONFIG_FILEPATH, HIGHSCORE_FILEPATH, START_LIVES, \
     HIGHSCORE_GAME_MODE
-from game.level import Background, Level, LevelOne, LevelTwo, HighscoreLevel
-
-constants.APP_SCREEN_MAX_SIZE = 320
+from game.level import Background, LevelOne, LevelTwo, HighscoreLevel
 
 from random import random
 

@@ -26,6 +26,9 @@ class ControllerConfig:
         self.timer = 0
 
     def btn_hold(self, key):
+        if not key:
+            return False
+
         press = pyxel.btn(key)
         if press:
             self.timer += press

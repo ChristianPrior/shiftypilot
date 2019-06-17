@@ -5,7 +5,7 @@ from game.vector import Vec2
 
 ALPHABET = string.ascii_uppercase
 GAME_NAME = "Shifty Pilot 1: Galactic Apocalypse"
-SIZE = Vec2(320, 320)
+SIZE = Vec2(255, 255)
 
 ASSETS_PATH = f"{os.getcwd()}/assets/sprites.pyxel"
 HIGHSCORE_FILEPATH = f"{os.getcwd()}/highscores.json"
