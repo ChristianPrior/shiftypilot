@@ -92,6 +92,7 @@ class Level:
         self.big_meteors: list
         self.level_phases: dict
         self.current_phase = 0
+        self.phase_timer = 0
 
     def update(self):
         raise NotImplementedError(f'update function for Level {self.LEVEL_COUNT} not implemented')
@@ -114,7 +115,7 @@ class HighscoreLevel(Level):
     def init_phases(self):
         phase_mapping = {
             0: {"update_func": self.phase_zero_update, "length": 100},
-            1: {"update_func": self.phase_one_update, "length": 900},
+            1: {"update_func": self.phase_one_update, "length": 1000},
             2: {"update_func": self.phase_two_update, "length": 3000},
             3: {"update_func": self.phase_three_update, "length": 1000},
 
@@ -143,13 +144,15 @@ class HighscoreLevel(Level):
             ) for _ in range(BIG_METEOR_COUNT)
         ]
 
-    def phase_has_ended(self, phase):
+    def phase_has_ended(self, phase, phase_timer=None):
+        phase_timer = phase_timer or self.phase_timer
+
         elapsed_phase_length_sum = 0
         for phase_count in range(phase + 1):
             elapsed_phase_length_sum += self.level_phases[phase_count]['length']
 
-        has_ended = elapsed_phase_length_sum - self.timer <= 0
-        end_frame = elapsed_phase_length_sum - self.timer == 0
+        has_ended = phase_timer >= self.level_phases[phase]['length']
+        end_frame = phase_timer == self.level_phases[phase]['length']
 
         return has_ended, end_frame
 
@@ -164,64 +167,68 @@ class HighscoreLevel(Level):
         print('incrementing phase')
 
     def phase_zero_update(self):
-        _, end_frame = self.phase_has_ended(0)
-
+        _, end_frame = self.phase_has_ended(0, self.phase_timer)
+        self.phase_timer += 1
         if end_frame:
             print(self.timer)
             print('ending phase 0')
+            self.phase_timer = 0
             self.increment_phase()
 
     def phase_one_update(self):
-        if self.current_phase == 1:
-            phase_ended, end_frame = self.phase_has_ended(1)
+        phase_ended, end_frame = self.phase_has_ended(1, self.phase_timer)
 
-            if end_frame:
-                print(self.timer)
-                print('ending phase 1')
+        if end_frame:
+            print(self.timer)
+            print('ending phase 1')
 
-            if phase_ended:
-                for meteor in self.small_meteors:
-                    meteor.update(end_sequence=True)
-                for meteor in self.big_meteors:
-                    meteor.update(end_sequence=True)
+        if phase_ended:
+            for meteor in self.small_meteors:
+                meteor.update(end_sequence=True)
+            for meteor in self.big_meteors:
+                meteor.update(end_sequence=True)
 
-                if (not any(meteor.is_active for meteor in self.small_meteors)
-                        and not any(meteor.is_active for meteor in self.big_meteors)):
-                    self.increment_phase()
-                    self.difficulty.reset_meteor_count()
-                    self.difficulty.change_meteor_speeds((1, 2))
-            else:
-                for meteor in self.small_meteors:
-                    meteor.update()
-                for meteor in self.big_meteors:
-                    meteor.update()
+            if (not any(meteor.is_active for meteor in self.small_meteors)
+                    and not any(meteor.is_active for meteor in self.big_meteors)):
+                self.increment_phase()
+                self.difficulty.reset_meteor_count()
+                self.difficulty.change_meteor_speeds((1, 2))
+                self.phase_timer = 0
+        else:
+            for meteor in self.small_meteors:
+                meteor.update()
+            for meteor in self.big_meteors:
+                meteor.update()
 
-                if self.app.score % 250 == 0:
-                    self.difficulty.increase_meteors()
+            if self.app.score % 250 == 0:
+                self.difficulty.increase_meteors()
+
+        self.phase_timer += 1
 
     def phase_two_update(self):
-        if self.current_phase == 2:
-            phase_ended, end_frame = self.phase_has_ended(2)
+        phase_ended, end_frame = self.phase_has_ended(2, self.phase_timer)
 
-            if end_frame:
-                print(self.timer)
-                print('ending phase 2')
+        if end_frame:
+            print(self.timer)
+            print('ending phase 2')
 
-            if phase_ended:
-                for meteor in self.small_meteors:
-                    meteor.update(end_sequence=True, speed_range=self.difficulty.speed_range)
-                for meteor in self.big_meteors:
-                    meteor.update(end_sequence=True, speed_range=self.difficulty.speed_range)
+        if phase_ended:
+            for meteor in self.small_meteors:
+                meteor.update(end_sequence=True, speed_range=self.difficulty.speed_range)
+            for meteor in self.big_meteors:
+                meteor.update(end_sequence=True, speed_range=self.difficulty.speed_range)
 
-                if (not any(meteor.is_active for meteor in self.small_meteors)
-                        and not any(meteor.is_active for meteor in self.big_meteors)):
-                    self.increment_phase()
-                    self.difficulty.reset_meteor_count()
-            else:
-                for meteor in self.small_meteors:
-                    meteor.update(speed_range=self.difficulty.speed_range)
-                for meteor in self.big_meteors:
-                    meteor.update(speed_range=self.difficulty.speed_range)
+            if (not any(meteor.is_active for meteor in self.small_meteors)
+                    and not any(meteor.is_active for meteor in self.big_meteors)):
+                self.increment_phase()
+                self.difficulty.reset_meteor_count()
+        else:
+            for meteor in self.small_meteors:
+                meteor.update(speed_range=self.difficulty.speed_range)
+            for meteor in self.big_meteors:
+                meteor.update(speed_range=self.difficulty.speed_range)
+
+        self.phase_timer += 1
 
     def phase_three_update(self):
         if self.current_phase == 3:
@@ -234,8 +241,7 @@ class HighscoreLevel(Level):
                 self.difficulty.increase_meteors()
 
     def update(self):
-        for phase in self.level_phases.keys():
-            self.level_phases[phase]['update_func']()
+        self.level_phases[self.current_phase]['update_func']()
 
         self.timer += 1
 
@@ -265,8 +271,6 @@ class HighscoreLevel(Level):
                     meteor.size.y,
                     0
                 )
-
-
 
 
 class LevelOne(Level):
@@ -331,7 +335,7 @@ class LevelOne(Level):
 
     def increment_phase(self):
         self.current_phase += 1
-        print('incrementing phase')
+        print(f'incrementing phase to phase {self.current_phase}')
 
     def phase_zero_update(self):
         _, end_frame = self.phase_has_ended(0)
